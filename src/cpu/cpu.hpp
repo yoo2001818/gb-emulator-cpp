@@ -8,8 +8,8 @@ namespace memory
   class memory
   {
   public:
-    int read(int pAddr);
-    void write(int pAddr, int pValue);
+    int read(int pAddr) { return 0xff; };
+    void write(int pAddr, int pValue) {};
   };
 };
 
@@ -18,16 +18,61 @@ namespace cpu
   class cpu_register
   {
   public:
-    int a = 0;
-    int b = 0;
-    int c = 0;
-    int d = 0;
-    int e = 0;
-    int f = 0;
-    int h = 0;
-    int l = 0;
-    int pc = 0;
-    int sp = 0;
+    uint8_t a = 0;
+    uint8_t b = 0;
+    uint8_t c = 0;
+    uint8_t d = 0;
+    uint8_t e = 0;
+    uint8_t f = 0;
+    uint8_t h = 0;
+    uint8_t l = 0;
+    uint16_t pc = 0;
+    uint16_t sp = 0;
+
+    const uint16_t af() const
+    {
+      return (this->a << 8) | this->f;
+    }
+
+    void af(const uint16_t& pValue)
+    {
+      this->a = pValue >> 8;
+      this->f = pValue & 0xf0;
+    }
+
+    const uint16_t bc() const
+    {
+      return (this->b << 8) | this->c;
+    }
+
+    void bc(const uint16_t& pValue)
+    {
+      this->b = pValue >> 8;
+      this->c = pValue & 0xff;
+    }
+
+    const uint16_t de() const
+    {
+      return (this->d << 8) | this->e;
+    }
+
+    void de(const uint16_t& pValue)
+    {
+      this->d = pValue >> 8;
+      this->e = pValue & 0xff;
+    }
+
+    const uint16_t hl() const
+    {
+      return (this->h << 8) | this->l;
+    }
+
+    void hl(const uint16_t& pValue)
+    {
+      this->h = pValue >> 8;
+      this->l = pValue & 0xff;
+    }
+    
   };
 
   class cpu
@@ -57,8 +102,8 @@ namespace cpu
       this->mIsInterruptsEnabledNext = false;
     }
 
-    void jump(int pAddr) {
-      this->mRegister.pc = pAddr & 0xffff;
+    void jump(uint16_t pAddr) {
+      this->mRegister.pc = pAddr;
     }
 
     void step() {
@@ -74,8 +119,8 @@ namespace cpu
     }
 
   private:
-    void skip(int bytes) {
-      this->mRegister.pc = (this->mRegister.pc + bytes) & 0xffff;
+    void skip(int16_t bytes) {
+      this->mRegister.pc = this->mRegister.pc + bytes;
     }
 
     void tick(int pClocks) {
