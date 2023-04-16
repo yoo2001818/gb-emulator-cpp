@@ -118,7 +118,6 @@ namespace cpu
       // TODO: Parse opcode
     }
 
-  private:
     void skip(int16_t bytes) {
       this->mRegister.pc = this->mRegister.pc + bytes;
     }
@@ -126,6 +125,19 @@ namespace cpu
     void tick(int pClocks) {
       this->mClocks += pClocks;
       // FIXME: Pass time
+    }
+
+    uint8_t read_next8() {
+      uint8_t value = this->mMemory.read(this->mRegister.pc);
+      this->skip(1);
+      return value;
+    }
+
+    uint16_t read_next16() {
+      uint16_t value1 = this->mMemory.read(this->mRegister.pc);
+      uint16_t value2 = this->mMemory.read(this->mRegister.pc + 1);
+      this->skip(2);
+      return value1 | (value2 << 8);
     }
   };
 };
