@@ -52,3 +52,34 @@ void cpu::op::ldh8_a_a8(cpu &pCpu)
   reg::reg8_a::write(pCpu, value);
 }
 
+void cpu::op::ld16_a16_sp(cpu &pCpu)
+{
+  auto addr = pCpu.read_next16();
+  auto value = pCpu.mRegister.sp;
+  pCpu.mMemory.write(addr, value & 0xff);
+  pCpu.mMemory.write(addr, (value >> 8) & 0xff);
+  pCpu.tick(5);
+}
+
+void cpu::op::ld16_sp_hl(cpu &pCpu)
+{
+  uint16_t value = reg::reg16_hl::read(pCpu);
+  reg::reg16_sp::write(pCpu, value);
+  pCpu.tick(2);
+}
+
+void cpu::op::ld16_hl_spr8(cpu &pCpu)
+{
+  int n1 = reg::reg16_sp::read(pCpu);
+  int n2 = pCpu.read_next8();
+  if (n2 & 0x80) {
+    n2 = -((~n2 + 1) & 0xff);
+  }
+  uint16_t addr = n1 + n2;
+  reg::reg16_hl::write(pCpu, addr);
+  uint8_t flags = 0;
+  if ((n1 ^ n2 ^ addr) & 0x10) flags |= 0x20;
+  if ((n1 ^ n2 ^ addr) & 0x100) flags |= 0x10;
+  pCpu.mRegister.f = flags;
+  pCpu.tick(3);
+}

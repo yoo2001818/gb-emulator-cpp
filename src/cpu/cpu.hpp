@@ -139,6 +139,9 @@ namespace cpu
       this->skip(2);
       return value1 | (value2 << 8);
     }
+
+    void push16(uint16_t value);
+    uint16_t pop16();
   };
 };
 
