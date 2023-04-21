@@ -4,7 +4,7 @@ void cpu::op::jp_a16(cpu &pCpu)
 {
   auto addr = pCpu.read_next16();
   pCpu.mRegister.pc = addr;
-  pCpu.tick(4);
+  pCpu.tick(3);
 }
 
 void cpu::op::jp_hl(cpu &pCpu)
@@ -28,10 +28,10 @@ void cpu::op::jr_r8(cpu &pCpu)
 void cpu::op::call_a16(cpu &pCpu)
 {
   auto nextAddr = pCpu.read_next16();
-  pCpu.tick(3);
+  pCpu.tick(2);
   auto pushAddr = pCpu.mRegister.pc + 1;
   pCpu.push16(pushAddr);
-  pCpu.tick(3);
+  pCpu.tick(2);
   pCpu.mRegister.pc = nextAddr;
 }
 
@@ -40,21 +40,21 @@ void cpu::op::rst_nn(cpu &pCpu, uint16_t addr)
   pCpu.tick(1);
   auto pushAddr = pCpu.mRegister.pc + 1;
   pCpu.push16(pushAddr);
-  pCpu.tick(3);
+  pCpu.tick(2);
   pCpu.mRegister.pc = addr;
 }
 
 void cpu::op::ret(cpu &pCpu)
 {
   auto nextAddr = pCpu.pop16();
-  pCpu.tick(4);
+  pCpu.tick(3);
   pCpu.mRegister.pc = nextAddr;
 }
 
 void cpu::op::reti(cpu &pCpu)
 {
   auto nextAddr = pCpu.pop16();
-  pCpu.tick(4);
+  pCpu.tick(3);
   pCpu.mRegister.pc = nextAddr;
   pCpu.mIsInterruptsEnabled = true;
   pCpu.mIsInterruptsEnabledNext = true;

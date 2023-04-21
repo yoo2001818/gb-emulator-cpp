@@ -232,6 +232,10 @@ namespace cpu
       };
     };
 
+    static const uint8_t FLAG_C = 0x10;
+    static const uint8_t FLAG_H = 0x20;
+    static const uint8_t FLAG_N = 0x40;
+    static const uint8_t FLAG_Z = 0x80;
   };
 };
 

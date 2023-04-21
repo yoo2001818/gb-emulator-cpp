@@ -3,7 +3,7 @@
 void cpu::op::ld8_a_a16(cpu &pCpu)
 {
   uint16_t addr = pCpu.read_next16();
-  pCpu.tick(2);
+  pCpu.tick(1);
   uint8_t value = pCpu.mMemory.read(addr);
   reg::reg8_a::write(pCpu, value);
   pCpu.tick(2);
@@ -12,7 +12,7 @@ void cpu::op::ld8_a_a16(cpu &pCpu)
 void cpu::op::ld8_a16_a(cpu &pCpu)
 {
   uint16_t addr = pCpu.read_next16();
-  pCpu.tick(2);
+  pCpu.tick(1);
   uint8_t value = reg::reg8_a::read(pCpu);
   pCpu.mMemory.write(addr, value);
   pCpu.tick(2); 
@@ -58,7 +58,7 @@ void cpu::op::ld16_a16_sp(cpu &pCpu)
   auto value = pCpu.mRegister.sp;
   pCpu.mMemory.write(addr, value & 0xff);
   pCpu.mMemory.write(addr, (value >> 8) & 0xff);
-  pCpu.tick(5);
+  pCpu.tick(4);
 }
 
 void cpu::op::ld16_sp_hl(cpu &pCpu)
@@ -78,8 +78,8 @@ void cpu::op::ld16_hl_spr8(cpu &pCpu)
   uint16_t addr = n1 + n2;
   reg::reg16_hl::write(pCpu, addr);
   uint8_t flags = 0;
-  if ((n1 ^ n2 ^ addr) & 0x10) flags |= 0x20;
-  if ((n1 ^ n2 ^ addr) & 0x100) flags |= 0x10;
+  if ((n1 ^ n2 ^ addr) & 0x10) flags |= reg::FLAG_H;
+  if ((n1 ^ n2 ^ addr) & 0x100) flags |= reg::FLAG_C;
   pCpu.mRegister.f = flags;
   pCpu.tick(3);
 }

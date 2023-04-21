@@ -19,7 +19,25 @@ namespace cpu::cond
   class cond_nz : cond
   {
     public:
-    static bool test(cpu &pCpu) { return false; };
+    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_Z) != 0; };
+  };
+
+  class cond_z : cond
+  {
+    public:
+    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_Z) == 0; };
+  };
+
+  class cond_nc : cond
+  {
+    public:
+    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_C) != 0; };
+  };
+
+  class cond_c : cond
+  {
+    public:
+    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_C) == 0; };
   };
 
 };
@@ -77,6 +95,7 @@ namespace cpu::op
   void ret_cond(cpu &pCpu)
   {
     if (C::test(pCpu)) {
+      pCpu.tick(1);
       ret(pCpu);
     } else {
       pCpu.tick(2);

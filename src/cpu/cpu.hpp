@@ -135,6 +135,7 @@ namespace cpu
 
     uint16_t read_next16() {
       uint16_t value1 = this->mMemory.read(this->mRegister.pc);
+      this->tick(1);
       uint16_t value2 = this->mMemory.read(this->mRegister.pc + 1);
       this->skip(2);
       return value1 | (value2 << 8);
