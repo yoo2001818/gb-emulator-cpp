@@ -310,6 +310,42 @@ namespace cpu
         return result;
       }
     };
+
+    template <int B>
+    class op_bit : op_unary
+    {
+    public:
+      static uint8_t exec(cpu &pCpu, const uint8_t pValue)
+      {
+        auto result = (1 << B) & pValue;
+        uint8_t flags = pCpu.mRegister.f & reg::FLAG_C;
+        flags |= reg::FLAG_H;
+        pCpu.mRegister.f = flags;
+        return result;
+      }
+    };
+
+    template <int B>
+    class op_set : op_unary
+    {
+    public:
+      static uint8_t exec(cpu &pCpu, const uint8_t pValue)
+      {
+        uint8_t result = (1 << B) | pValue;
+        return result;
+      }
+    };
+
+    template <int B>
+    class op_res : op_unary
+    {
+    public:
+      static uint8_t exec(cpu &pCpu, const uint8_t pValue)
+      {
+        uint8_t result = (~(1 << B)) & pValue;
+        return result;
+      }
+    };
   }
 
   namespace op
