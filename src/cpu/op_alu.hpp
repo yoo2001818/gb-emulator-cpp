@@ -371,6 +371,44 @@ namespace cpu
       reg::reg8_a::write(pCpu, result);
       pCpu.tick(2);
     }
+
+    template <typename Op, typename R>
+      requires conjunction<is_base_of<alu::op_unary, Op>, is_base_of<reg::reg8, R>>::value
+    void alu_unary(cpu &pCpu)
+    {
+      if (R::clocks > 0) pCpu.tick(R::clocks);
+      auto n = R::read(pCpu);
+      if (R::clocks > 0) pCpu.tick(R::clocks);
+      auto result = Op::exec(pCpu, n);
+      R::write(pCpu, result);
+      pCpu.tick(1);
+    }
+
+    template <typename Op, typename R>
+      requires conjunction<is_base_of<alu::op_unary, Op>, is_base_of<reg::reg8, R>>::value
+    void alu_unary_shift(cpu &pCpu)
+    {
+      if (R::clocks > 0) pCpu.tick(R::clocks);
+      auto n = R::read(pCpu);
+      if (R::clocks > 0) pCpu.tick(R::clocks);
+      auto result = Op::exec(pCpu, n);
+      R::write(pCpu, result);
+
+      uint8_t flags = pCpu.mRegister.f | ~reg::FLAG_Z;
+      if (result == 0) flags |= reg::FLAG_Z;
+      pCpu.mRegister.f = flags;
+      pCpu.tick(1);
+    }
+
+    template <typename Op, typename R>
+      requires conjunction<is_base_of<alu::op_unary, Op>, is_base_of<reg::reg8, R>>::value
+    void alu_unary_read(cpu &pCpu)
+    {
+      if (R::clocks > 0) pCpu.tick(R::clocks);
+      auto n = R::read(pCpu);
+      Op::exec(pCpu, n);
+      pCpu.tick(1);
+    }   
   }
 }
 
