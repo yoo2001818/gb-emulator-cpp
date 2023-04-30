@@ -4,7 +4,10 @@
 #include <array>
 #include "cpu.hpp"
 #include "reg.hpp"
+#include "op_alu.hpp"
+#include "op_jmp.hpp"
 #include "op_ld.hpp"
+#include "op_misc.hpp"
 
 #ifndef __OP_HPP__
 #define __OP_HPP__
@@ -13,12 +16,6 @@ using namespace std;
 
 namespace cpu
 {
-  namespace op
-  {
-    void nop(cpu &pCpu)
-    {
-    }
-  };
   namespace opcode
   {
     using namespace std;
