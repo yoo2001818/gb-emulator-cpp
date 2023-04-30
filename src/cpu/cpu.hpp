@@ -88,59 +88,14 @@ namespace cpu
     bool mIsInterruptsEnabled = false;
     bool mIsInterruptsEnabledNext = false;
 
-    cpu(memory::memory pMemory) : mMemory(pMemory)
-    {
-    }
-
-    void reset()
-    {
-      this->mRegister = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-      this->mClocks = 0;
-      this->mIsStopped = false;
-      this->mIsBlocked = false;
-      this->mIsInterruptsEnabled = false;
-      this->mIsInterruptsEnabledNext = false;
-    }
-
-    void jump(uint16_t pAddr) {
-      this->mRegister.pc = pAddr;
-    }
-
-    void step() {
-      if (this->mIsBlocked) {
-        // Do nothing and pass the time
-        this->tick(1);
-        return;
-      }
-      this->mIsInterruptsEnabled = this->mIsInterruptsEnabledNext;
-      int pc = this->mRegister.pc;
-      int opcode = this->mMemory.read(pc);
-      // TODO: Parse opcode
-    }
-
-    void skip(int16_t bytes) {
-      this->mRegister.pc = this->mRegister.pc + bytes;
-    }
-
-    void tick(int pClocks) {
-      this->mClocks += pClocks;
-      // FIXME: Pass time
-    }
-
-    uint8_t read_next8() {
-      uint8_t value = this->mMemory.read(this->mRegister.pc);
-      this->skip(1);
-      return value;
-    }
-
-    uint16_t read_next16() {
-      uint16_t value1 = this->mMemory.read(this->mRegister.pc);
-      this->tick(1);
-      uint16_t value2 = this->mMemory.read(this->mRegister.pc + 1);
-      this->skip(2);
-      return value1 | (value2 << 8);
-    }
-
+    cpu(memory::memory pMemory);
+    void reset();
+    void jump(uint16_t pAddr);
+    void step();
+    void skip(int16_t bytes);
+    void tick(int pClocks);
+    uint8_t read_next8();
+    uint16_t read_next16();
     void push16(uint16_t value);
     uint16_t pop16();
   };

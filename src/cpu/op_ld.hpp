@@ -29,7 +29,7 @@ namespace cpu::op
     if (R::clocks > 0) pCpu.tick(R::clocks);
     uint8_t value = pCpu.read_next8();
     R::write(pCpu, value);
-    pCpu::tick(2);
+    pCpu.tick(2);
   }
 
   void ld8_a_a16(cpu &pCpu);
@@ -44,7 +44,7 @@ namespace cpu::op
     uint16_t addr = R::read(pCpu);
     uint8_t value = pCpu.mMemory.read(addr);
     reg::reg8_a::write(pCpu, value);
-    pCpu::tick(2);
+    pCpu.tick(2);
   }
 
   template <typename R>
@@ -54,7 +54,7 @@ namespace cpu::op
     uint16_t addr = R::read(pCpu);
     uint8_t value = reg::reg8_a::read(pCpu);
     pCpu.mMemory.write(addr, value);
-    pCpu::tick(2);
+    pCpu.tick(2);
   }
 
   void ldh8_a8_a(cpu &pCpu);
@@ -66,7 +66,7 @@ namespace cpu::op
   {
     uint16_t value = pCpu.read_next16();
     R::write(pCpu, value);
-    pCpu::tick(3);
+    pCpu.tick(3);
   }
 
   void ld16_a16_sp(cpu &pCpu);
