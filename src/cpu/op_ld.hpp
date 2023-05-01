@@ -42,7 +42,7 @@ namespace cpu::op
   void ld16_a_r16(cpu &pCpu)
   {
     uint16_t addr = R::read(pCpu);
-    uint8_t value = pCpu.mMemory.read(addr);
+    uint8_t value = pCpu.mMemory->read(addr);
     reg::reg8_a::write(pCpu, value);
     pCpu.tick(2);
   }
@@ -53,7 +53,7 @@ namespace cpu::op
   {
     uint16_t addr = R::read(pCpu);
     uint8_t value = reg::reg8_a::read(pCpu);
-    pCpu.mMemory.write(addr, value);
+    pCpu.mMemory->write(addr, value);
     pCpu.tick(2);
   }
 

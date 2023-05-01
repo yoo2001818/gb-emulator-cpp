@@ -2,14 +2,14 @@
 #include <memory>
 #include "memory.hpp"
 
-#ifndef __MEMORY_BUS_HPP__
-#define __MEMORY_BUS_HPP__
+#ifndef __IO_BUS_HPP__
+#define __IO_BUS_HPP__
 
 using namespace std;
 
 namespace memory
 {
-  class memory_bus : public memory
+  class io_bus : public memory
   {
   private:
     array<shared_ptr<memory>, 256> mEntries;
@@ -18,10 +18,11 @@ namespace memory
     virtual uint8_t read(uint16_t pAddr);
     virtual void write(uint16_t pAddr, uint8_t pValue);
     virtual void reset();
+    void register_entry(int pFrom, shared_ptr<memory> pMemory);
     void register_entry(int pFrom, int pSize, shared_ptr<memory> pMemory);
-    void register_entry(int pFrom, int pSize, shared_ptr<memory> pMemory, int pOffset);
   };
 };
 
-#endif // __MEMORY_BUS_HPP__
+#endif // __IO_BUS_HPP__
+
 

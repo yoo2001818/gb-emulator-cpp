@@ -7,6 +7,8 @@
 
 namespace cpu
 {
+  using namespace std;
+
   class cpu_register
   {
   public:

@@ -122,11 +122,11 @@ namespace cpu
       static const int clocks = 1;
       static uint8_t read(cpu &pCpu)
       {
-        return pCpu.mMemory.read(pCpu.mRegister.hl());
+        return pCpu.mMemory->read(pCpu.mRegister.hl());
       };
       static void write(cpu &pCpu, const uint8_t pValue)
       {
-        pCpu.mMemory.write(pCpu.mRegister.hl(), pValue);
+        pCpu.mMemory->write(pCpu.mRegister.hl(), pValue);
       };
     };
 

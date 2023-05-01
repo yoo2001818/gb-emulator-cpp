@@ -8,6 +8,7 @@ namespace memory
   class memory
   {
   public:
+    virtual ~memory() {};
     virtual uint8_t read(uint16_t pAddr) = 0;
     virtual void write(uint16_t pAddr, uint8_t pValue) = 0;
     virtual void reset() = 0;
