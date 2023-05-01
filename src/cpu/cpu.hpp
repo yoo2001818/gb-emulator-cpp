@@ -1,17 +1,9 @@
 #include <cstdint>
+#include <memory>
+#include "../memory/memory.hpp"
 
 #ifndef __CPU_HPP__
 #define __CPU_HPP__
-
-namespace memory
-{
-  class memory
-  {
-  public:
-    int read(int pAddr) { return 0xff; };
-    void write(int pAddr, int pValue) {};
-  };
-};
 
 namespace cpu
 {
@@ -79,7 +71,7 @@ namespace cpu
   {
   public:
     cpu_register mRegister;
-    memory::memory mMemory;
+    shared_ptr<memory::memory> mMemory;
     unsigned int mClocks;
 
     bool mIsRunning = false;
@@ -88,16 +80,52 @@ namespace cpu
     bool mIsInterruptsEnabled = false;
     bool mIsInterruptsEnabledNext = false;
 
-    cpu(memory::memory pMemory);
+    cpu(shared_ptr<memory::memory> pMemory);
     void reset();
-    void jump(uint16_t pAddr);
     void step();
-    void skip(int16_t bytes);
-    void tick(int pClocks);
-    uint8_t read_next8();
-    uint16_t read_next16();
-    void push16(uint16_t value);
-    uint16_t pop16();
+    void jump(uint16_t pAddr)
+    {
+      this->mRegister.pc = pAddr;
+    }
+    void skip(int16_t bytes)
+    {
+      this->mRegister.pc = this->mRegister.pc + bytes;
+    }
+    void tick(int pClocks)
+    {
+      this->mClocks += pClocks;
+      // FIXME: Pass time
+    }
+    uint8_t read_next8()
+    {
+      uint8_t value = this->mMemory->read(this->mRegister.pc);
+      this->skip(1);
+      return value;
+    }
+    uint16_t read_next16()
+    {
+      uint16_t value1 = this->mMemory->read(this->mRegister.pc);
+      this->tick(1);
+      uint16_t value2 = this->mMemory->read(this->mRegister.pc + 1);
+      this->skip(2);
+      return value1 | (value2 << 8);
+    }
+    void push16(uint16_t value)
+    {
+      this->mMemory->write(this->mRegister.sp - 1, (value >> 8) & 0xff);
+      this->tick(1);
+      this->mMemory->write(this->mRegister.sp - 2, value & 0xff);
+      this->mRegister.sp = (this->mRegister.sp - 2) & 0xffff;
+    }
+    uint16_t pop16()
+    {
+      uint16_t value1 = this->mMemory->read(this->mRegister.sp);
+      this->tick(1);
+      uint16_t value2 = this->mMemory->read(this->mRegister.sp + 1);
+      uint16_t value = value1 | (value2 << 8);
+      this->mRegister.sp = (this->mRegister.sp + 2) & 0xffff;
+      return value;
+    }
   };
 };
 
