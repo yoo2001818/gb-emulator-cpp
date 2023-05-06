@@ -2,6 +2,7 @@
 #include "../memory/memory_bus.hpp"
 #include "../memory/io_bus.hpp"
 #include "interrupter.hpp"
+#include "timer.hpp"
 
 #ifndef __SYSTEM_HPP__
 #define __SYSTEM_HPP__
@@ -15,6 +16,7 @@ namespace gb_system
     shared_ptr<interrupter> mInterrupter;
     shared_ptr<memory::memory_bus> mMemoryBus;
     shared_ptr<memory::io_bus> mIoBus;
+    shared_ptr<timer> mTimer;
 
     system();
     void reset();

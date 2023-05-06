@@ -6,6 +6,11 @@
 
 namespace gb_system
 {
+  static const int VBLANK = 0;
+  static const int LCDC = 1;
+  static const int TIMER_OVERFLOW = 2;
+  static const int SERIAL_COMPLETE = 3;
+  static const int PIN_TRIGGERED = 4;
   class system;
   class interrupter
   {
