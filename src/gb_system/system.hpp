@@ -18,6 +18,7 @@ namespace gb_system
 
     system();
     void reset();
+    void tick(int pTicks);
   };
 }
 

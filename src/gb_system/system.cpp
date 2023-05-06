@@ -17,7 +17,12 @@ void gb_system::system::reset()
   this->mIoBus->reset();
 
   this->mCpu->setOnTick([&](int pTicks) {
-    // ...
+    this->tick(pTicks);
   });
   this->mMemoryBus->register_entry(0xff, 1, this->mIoBus);
+}
+
+void gb_system::system::tick(int pTicks)
+{
+
 }
