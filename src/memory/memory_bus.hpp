@@ -9,7 +9,7 @@ using namespace std;
 
 namespace memory
 {
-  class memory_bus : public memory
+  class memory_bus : public memory, public enable_shared_from_this<memory_bus>
   {
   private:
     array<shared_ptr<memory>, 256> mEntries;

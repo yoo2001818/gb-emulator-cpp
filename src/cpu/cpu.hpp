@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <memory>
+#include <functional>
 #include "../memory/memory.hpp"
 
 #ifndef __CPU_HPP__
@@ -75,6 +76,7 @@ namespace cpu
     cpu_register mRegister;
     shared_ptr<memory::memory> mMemory;
     unsigned int mClocks;
+    function<void(int)> mOnTick;
 
     bool mIsRunning = false;
     bool mIsStopped = false;
@@ -96,7 +98,13 @@ namespace cpu
     void tick(int pClocks)
     {
       this->mClocks += pClocks;
-      // FIXME: Pass time
+      if (this->mOnTick) {
+        this->mOnTick(pClocks);
+      }
+    }
+    void setOnTick(function<void(int)> pOnTick)
+    {
+      this->mOnTick = pOnTick;
     }
     uint8_t read_next8()
     {

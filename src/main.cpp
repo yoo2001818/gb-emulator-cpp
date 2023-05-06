@@ -3,6 +3,7 @@
 #include "cpu/cpu.hpp"
 #include "memory/memory_bus.hpp"
 #include "memory/lambda_memory.hpp"
+#include "gb_system/system.hpp"
 
 int main() {
   std::cout << "Hello, world!" << std::endl;
@@ -16,5 +17,6 @@ int main() {
   ));
   cpu::cpu cpu(mem);
   cpu.step();
+  auto system = gb_system::system();
   return 0;
 }

@@ -1,6 +1,6 @@
 #include "interrupter.hpp"
 
-using namespace system;
+using namespace gb_system;
 
 static const uint16_t IE_ADDR = 0xffff;
 static const uint16_t IF_ADDR = 0xff0f;

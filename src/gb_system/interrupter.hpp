@@ -4,7 +4,7 @@
 #ifndef __INTERRUPTER_HPP__
 #define __INTERRUPTER_HPP__
 
-namespace system {
+namespace gb_system {
   class system;
   class interrupter {
   private:

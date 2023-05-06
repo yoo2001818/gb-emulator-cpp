@@ -6,15 +6,18 @@
 #ifndef __SYSTEM_HPP__
 #define __SYSTEM_HPP__
 
-namespace system
+namespace gb_system
 {
   class system
   {
   public:
-    cpu::cpu mCpu;
-    interrupter mInterrupter;
-    memory::memory_bus mMemoryBus;
-    memory::io_bus mIoBus;
+    shared_ptr<cpu::cpu> mCpu;
+    shared_ptr<interrupter> mInterrupter;
+    shared_ptr<memory::memory_bus> mMemoryBus;
+    shared_ptr<memory::io_bus> mIoBus;
+
+    system();
+    void reset();
   };
 }
 
