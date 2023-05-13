@@ -3,27 +3,27 @@
 #include <array>
 #include <memory>
 
-#ifndef __WRAM_HPP__
-#define __WRAM_HPP__
+#ifndef __HRAM_HPP__
+#define __HRAM_HPP__
 
 using namespace std;
 
 namespace gb_system
 {
   class system;
-  class wram : public memory::memory, public enable_shared_from_this<wram>
+  class hram : public memory::memory, public enable_shared_from_this<hram>
   {
   public:
-    wram(system &pSystem) : mSystem(pSystem){};
+    hram(system &pSystem) : mSystem(pSystem){};
     void register_system();
     void reset();
     uint8_t read(uint16_t pAddr);
     void write(uint16_t pAddr, uint8_t pValue);
   private:
     system &mSystem;
-    uint8_t mBank;
-    array<uint8_t, 0x8000> mBytes;
+    array<uint8_t, 0x80> mBytes;
   };
 }
 
-#endif // __WRAM_HPP__
+#endif // __HRAM_HPP__
+

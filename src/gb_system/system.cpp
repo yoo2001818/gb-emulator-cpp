@@ -8,6 +8,7 @@ gb_system::system::system()
   this->mInterrupter = make_shared<interrupter>(*this, *(this->mCpu));
   this->mTimer = make_shared<timer>(*this);
   this->mWram = make_shared<wram>(*this);
+  this->mHram = make_shared<hram>(*this);
   this->reset();
 }
 
@@ -19,6 +20,7 @@ void gb_system::system::reset()
   this->mIoBus->reset();
   this->mTimer->reset();
   this->mWram->reset();
+  this->mHram->reset();
 
   this->mCpu->setOnTick([&](int pTicks) {
     this->tick(pTicks);
@@ -27,6 +29,7 @@ void gb_system::system::reset()
   this->mInterrupter->register_system();
   this->mTimer->register_system();
   this->mWram->register_system();
+  this->mHram->register_system();
 }
 
 void gb_system::system::tick(int pTicks)

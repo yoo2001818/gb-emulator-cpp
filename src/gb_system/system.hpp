@@ -4,6 +4,7 @@
 #include "interrupter.hpp"
 #include "timer.hpp"
 #include "wram.hpp"
+#include "hram.hpp"
 
 #ifndef __SYSTEM_HPP__
 #define __SYSTEM_HPP__
@@ -19,6 +20,7 @@ namespace gb_system
     shared_ptr<memory::io_bus> mIoBus;
     shared_ptr<timer> mTimer;
     shared_ptr<wram> mWram;
+    shared_ptr<hram> mHram;
 
     system();
     void reset();
