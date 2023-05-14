@@ -67,7 +67,7 @@ void gb_system::timer::register_system()
     ));
 }
 
-void gb_system::timer::tick(int pTicks)
+void gb_system::timer::tick()
 {
     if (this->mTimaDelayed) {
         this->mTimaDelayed = false;

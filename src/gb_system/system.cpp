@@ -34,5 +34,7 @@ void gb_system::system::reset()
 
 void gb_system::system::tick(int pTicks)
 {
-
+  for (auto i = 0; i < pTicks; i += 1) {
+    this->mTimer->tick();
+  }
 }

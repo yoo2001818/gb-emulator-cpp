@@ -12,7 +12,7 @@ namespace gb_system
     timer(system &pSystem) : mSystem(pSystem){};
     void reset();
     void register_system();
-    void tick(int pTicks);
+    void tick();
   private:
     system &mSystem;
     int mClocks;
