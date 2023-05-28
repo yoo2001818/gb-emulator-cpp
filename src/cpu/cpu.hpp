@@ -102,7 +102,7 @@ namespace cpu
         this->mOnTick(pClocks);
       }
     }
-    void setOnTick(function<void(int)> pOnTick)
+    void set_on_tick(function<void(int)> pOnTick)
     {
       this->mOnTick = pOnTick;
     }

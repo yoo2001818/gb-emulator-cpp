@@ -20,6 +20,16 @@ static const int IO_BCPD = 0x69;
 static const int IO_OCPS = 0x6a;
 static const int IO_OCPD = 0x6b;
 
+static const int VBLANK_LY = 144;
+static const int MAX_LY = 144;
+
+static const int LINE_CLOCK_MODE_0 = 144; // H-Blank
+static const int LINE_CLOCK_MODE_2 = 80; // OAM scanning
+static const int LINE_CLOCK_MODE_3 = 168; // Rendering
+static const int LINE_CLOCK_MODE_23 = LINE_CLOCK_MODE_2 + LINE_CLOCK_MODE_3;
+static const int LINE_CLOCK_MODE_230 = LINE_CLOCK_MODE_23 + LINE_CLOCK_MODE_0;
+static const int LINE_CLOCK_VBLANK = 456; // V-Blank (each scanline)
+
 void gb_system::ppu::reset()
 {
   this->mLcdc = 0x91;
@@ -53,31 +63,38 @@ void gb_system::ppu::register_system()
 
   // VRAM
   memoryBus->register_entry(0x80, 0x20, make_shared<::memory::lambda_memory>(
-    [&](uint16_t pAddr) {
+    [&](uint16_t pAddr)
+    {
       int offset = this->mVramBank * 0x2000;
       return this->mVram[offset + pAddr];
     },
-    [&](uint16_t pAddr, uint8_t pValue) {
+    [&](uint16_t pAddr, uint8_t pValue)
+    {
       int offset = this->mVramBank * 0x2000;
       this->mVram[offset + pAddr] = pValue;
     }
   ));
   // OAM
   memoryBus->register_entry(0xfe, 1, make_shared<::memory::lambda_memory>(
-    [&](uint16_t pAddr) {
+    [&](uint16_t pAddr)
+    {
       return this->mOam[pAddr];
     },
-    [&](uint16_t pAddr, uint8_t pValue) {
+    [&](uint16_t pAddr, uint8_t pValue)
+    {
       this->mOam[pAddr] = pValue;
     }
   ));
 
   ioBus->register_entry(IO_LCDC, make_shared<::memory::lambda_memory>(
-    [&](uint16_t pAddr) {
+    [&](uint16_t pAddr)
+    {
       return this->mLcdc;
     },
-    [&](uint16_t pAddr, uint8_t pValue) {
-      if ((this->mLcdc & 0x80) != (pValue & 0x80)) {
+    [&](uint16_t pAddr, uint8_t pValue)
+    {
+      if ((this->mLcdc & 0x80) != (pValue & 0x80))
+      {
         // LCD stopping / restarting
         this->mLy = 0;
         this->mMode = 0;
@@ -88,13 +105,15 @@ void gb_system::ppu::register_system()
     }
   ));
   ioBus->register_entry(IO_STAT, make_shared<::memory::lambda_memory>(
-    [&](uint16_t pAddr) {
+    [&](uint16_t pAddr)
+    {
       uint8_t bits = this->mStat & 0xf8;
       bits |= this->mMode;
       if (this->mLy == this->mLyc) bits |= 4;
       return bits;
     },
-    [&](uint16_t pAddr, uint8_t pValue) {
+    [&](uint16_t pAddr, uint8_t pValue)
+    {
       this->mStat = pValue;
     }
   ));
@@ -111,20 +130,24 @@ void gb_system::ppu::register_system()
   // CGB implementation
   if (this->mSystem.mSystemType == system_type::CGB) {
     ioBus->register_entry(IO_VBK, make_shared<::memory::lambda_memory>(
-      [&](uint16_t pAddr) {
+      [&](uint16_t pAddr)
+      {
         return 0xfe | this->mVramBank;
       },
-      [&](uint16_t pAddr, uint8_t pValue) {
+      [&](uint16_t pAddr, uint8_t pValue)
+      {
         this->mVramBank = pValue & 1;
       }
     ));
     ioBus->register_entry(IO_BCPS, make_shared<::memory::pointer_memory>(this->mBcps));
     ioBus->register_entry(IO_BCPD, make_shared<::memory::lambda_memory>(
-      [&](uint16_t pAddr) {
+      [&](uint16_t pAddr)
+      {
         int pos = this->mBcps & 0x3f;
         return this->mBgPalette[pos];
       },
-      [&](uint16_t pAddr, uint8_t pValue) {
+      [&](uint16_t pAddr, uint8_t pValue)
+      {
         int pos = this->mBcps & 0x3f;
         bool autoIncrement = this->mBcps & 0x80;
         if (autoIncrement) {
@@ -135,11 +158,13 @@ void gb_system::ppu::register_system()
     ));
     ioBus->register_entry(IO_OCPS, make_shared<::memory::pointer_memory>(this->mOcps));
     ioBus->register_entry(IO_OCPD, make_shared<::memory::lambda_memory>(
-      [&](uint16_t pAddr) {
+      [&](uint16_t pAddr)
+      {
         int pos = this->mOcps & 0x3f;
         return this->mObjPalette[pos];
       },
-      [&](uint16_t pAddr, uint8_t pValue) {
+      [&](uint16_t pAddr, uint8_t pValue)
+      {
         int pos = this->mOcps & 0x3f;
         bool autoIncrement = this->mOcps & 0x80;
         if (autoIncrement) {
@@ -153,5 +178,88 @@ void gb_system::ppu::register_system()
 
 void gb_system::ppu::tick()
 {
-  
+  if (!(this->mLcdc & 0x80))
+  {
+    // LCD turned off; do nothing
+    return;
+  }
+  this->mLineClock += 4;
+  if (this->mLy >= VBLANK_LY)
+  {
+    // VBlank
+    if (this->mLineClock >= LINE_CLOCK_VBLANK)
+    {
+      this->mLy += 1;
+      this->handle_line_change();
+    }
+  }
+  else if (this->mLineClock == LINE_CLOCK_MODE_2)
+  {
+    // OAM
+    this->handle_mode3_enter();
+  }
+  else if (this->mLineClock == LINE_CLOCK_MODE_23)
+  {
+    // Render
+    this->handle_mode0_enter();
+  } 
+  else if (this->mLineClock == LINE_CLOCK_MODE_230)
+  {
+    // H-Blank
+    this->mLy += 1;
+    this->handle_line_change();
+  }
+  this->mClocks += 1;
+}
+
+void gb_system::ppu::handle_line_change()
+{
+  this->mLineClock = 0;
+  if (this->mLy > MAX_LY)
+  {
+    this->mLy = 0;
+  }
+  if (this->mLy == this->mLyc && (this->mStat & 0x40))
+  {
+    // LYC=LY interrupt requested
+    this->mSystem.mInterrupter->queue_interrupt(INT_LCDC);
+  }
+  if (this->mLy < VBLANK_LY)
+  {
+    this->mMode = 2;
+    if (this->mStat & 0x20)
+    {
+      // OAM interrupt requested
+      this->mSystem.mInterrupter->queue_interrupt(INT_LCDC);
+    }
+  }
+  else if (this->mLy == VBLANK_LY)
+  {
+    this->mClocks = 0;
+    this->mMode = 1;
+    if (this->mStat & 0x10)
+    {
+      // V-blank interrupt requested
+      this->mSystem.mInterrupter->queue_interrupt(INT_LCDC);
+    }
+    // Generate V-blank interrupt separately
+    this->mSystem.mInterrupter->queue_interrupt(INT_VBLANK);
+  }
+}
+
+void gb_system::ppu::handle_mode3_enter()
+{
+  this->mMode = 3;
+}
+
+void gb_system::ppu::handle_mode0_enter()
+{
+  this->mMode = 0;
+  // FIXME: Render line
+  if (this->mStat & 0x08)
+  {
+    // H-blank interrupt requested
+    this->mSystem.mInterrupter->queue_interrupt(INT_LCDC);
+  }
+  // FIXME: Report HDMA
 }

@@ -8,14 +8,18 @@ void gb_system::wram::register_system()
 {
   this->mSystem.mMemoryBus->register_entry(0xc0, 0x20, this->shared_from_this());
   this->mSystem.mMemoryBus->register_entry(0xe0, 0x1e, this->shared_from_this());
-  if (this->mSystem.mSystemType == system_type::CGB) {
+  if (this->mSystem.mSystemType == system_type::CGB)
+  {
     this->mSystem.mIoBus->register_entry(IO_SVBK, make_shared<::memory::lambda_memory>(
-      [&](uint16_t pAddr) {
+      [&](uint16_t pAddr)
+      {
         return this->mBank;
       },
-      [&](uint16_t pAddr, uint8_t pValue) {
+      [&](uint16_t pAddr, uint8_t pValue)
+      {
         this->mBank = pValue & 0x7;
-        if (this->mBank == 0) {
+        if (this->mBank == 0)
+        {
           this->mBank = 1;
         }
       }

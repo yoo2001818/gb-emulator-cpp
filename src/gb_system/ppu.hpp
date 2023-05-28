@@ -43,6 +43,9 @@ namespace gb_system
     uint8_t mOcps;
     std::array<uint8_t, 64> mBgPalette;
     std::array<uint8_t, 64> mObjPalette;
+    void handle_line_change();
+    void handle_mode3_enter();
+    void handle_mode0_enter();
   };
 }
 

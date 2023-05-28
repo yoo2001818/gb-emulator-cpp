@@ -22,14 +22,18 @@ void gb_system::timer::reset()
 void gb_system::timer::register_system()
 {
   this->mSystem.mIoBus->register_entry(IO_DIV, make_shared<memory::lambda_memory>(
-    [&](uint16_t pAddr) {
+    [&](uint16_t pAddr)
+    {
       return this->mClocks / DIV_TICK_RATE;
     },
-    [&](uint16_t pAddr, uint8_t pValue) {
+    [&](uint16_t pAddr, uint8_t pValue)
+    {
       this->mClocks = 0;
-      if (this->mTac & 0x4) {
+      if (this->mTac & 0x4)
+      {
         auto oldBit = this->mClocks & TIMA_TICK_BITS[this->mTac & 0x3];
-        if (oldBit) {
+        if (oldBit)
+        {
           this->mTima += 1;
           this->post_update_tima();
         }
@@ -38,24 +42,28 @@ void gb_system::timer::register_system()
   ));
   this->mSystem.mIoBus->register_entry(IO_TIMA, make_shared<memory::lambda_memory>(
     [&](uint16_t pAddr) { return this->mTima; },
-    [&](uint16_t pAddr, uint8_t pValue) {
+    [&](uint16_t pAddr, uint8_t pValue)
+    {
       this->mTima = pValue;
     }
   ));
   this->mSystem.mIoBus->register_entry(IO_TMA, make_shared<memory::lambda_memory>(
     [&](uint16_t pAddr) { return this->mTma; },
-    [&](uint16_t pAddr, uint8_t pValue) {
+    [&](uint16_t pAddr, uint8_t pValue)
+    {
       this->mTma = pValue;
     }
   ));
   this->mSystem.mIoBus->register_entry(IO_TAC, make_shared<memory::lambda_memory>(
     [&](uint16_t pAddr) { return this->mTac; },
-    [&](uint16_t pAddr, uint8_t pValue) {
+    [&](uint16_t pAddr, uint8_t pValue)
+    {
       auto oldTac = this->mTac;
       this->mTac = pValue;
       // Update the clock immediately
       // DMG bug - TAC increments even if enabled flag becomes false
-      if (oldTac & 0x4) {
+      if (oldTac & 0x4)
+      {
         auto oldBit = this->mClocks & TIMA_TICK_BITS[oldTac & 0x3];
         auto newBit = this->mClocks & TIMA_TICK_BITS[pValue & 0x3];
         if (!newBit && oldBit) {
@@ -69,11 +77,13 @@ void gb_system::timer::register_system()
 
 void gb_system::timer::tick()
 {
-  if (this->mTimaDelayed) {
+  if (this->mTimaDelayed)
+  {
     this->mTimaDelayed = false;
-    this->mSystem.mInterrupter->queue_interrupt(TIMER_OVERFLOW);
+    this->mSystem.mInterrupter->queue_interrupt(INT_TIMER_OVERFLOW);
   }
-  if (this->mTac & 0x4) {
+  if (this->mTac & 0x4)
+  {
     // Tick the clock according to the clock
     // Note that this needs to be in sync with "clocks" variable
     // (https://gbdev.io/pandocs/Timer_Obscure_Behaviour.html)
@@ -82,7 +92,8 @@ void gb_system::timer::tick()
     auto nBits = TIMA_TICK_BITS[this->mTac & 0x3];
     bool oldBit = this->mClocks & nBits;
     bool newBit = (this->mClocks + 4) & nBits;
-    if (oldBit && !newBit) {
+    if (oldBit && !newBit)
+    {
       this->mTima += 1;
       this->post_update_tima();
     }
@@ -92,7 +103,8 @@ void gb_system::timer::tick()
 
 void gb_system::timer::post_update_tima()
 {
-  if (this->mTima > 0xff) {
+  if (this->mTima > 0xff)
+  {
     this->mTimaDelayed = true;
     this->mTima = 0x0;
   }

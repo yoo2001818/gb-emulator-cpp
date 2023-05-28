@@ -38,22 +38,26 @@ bool interrupter::is_accepting_interrupt()
 
 void interrupter::step()
 {
-  if (this->mCpu.mIsInterruptsEnabled || !this->mCpu.mIsRunning) {
+  if (this->mCpu.mIsInterruptsEnabled || !this->mCpu.mIsRunning)
+  {
     auto& memory = this->mCpu.mMemory;
     // Check interrupts
     auto ifReg = memory->read(IF_ADDR);
     auto ieReg = memory->read(IE_ADDR);
     auto interruptReg = ieReg & ifReg;
-    if (interruptReg) {
+    if (interruptReg)
+    {
       // Check which type is generated
       int interruptType = 0;
-      while ((interruptReg & 1) == 0) {
+      while ((interruptReg & 1) == 0)
+      {
         interruptType += 1;
         interruptReg = interruptReg >> 1;
       }
       // Regardless of IME flag, start the CPU (continuing from HALT)
       this->mCpu.mIsRunning = true;
-      if (this->mCpu.mIsInterruptsEnabled) {
+      if (this->mCpu.mIsInterruptsEnabled)
+      {
         // Clear IF register of the type
         memory->write(IF_ADDR, ifReg & ~(1 << interruptType));
         // Generate interrupts
@@ -70,7 +74,8 @@ void interrupter::step()
       }
     }
   }
-  if (this->mCpu.mIsRunning) {
+  if (this->mCpu.mIsRunning)
+  {
     this->mCpu.step();
   }
 }

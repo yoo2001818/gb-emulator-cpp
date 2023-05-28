@@ -24,7 +24,7 @@ void gb_system::system::reset()
   this->mHram->reset();
   this->mPpu->reset();
 
-  this->mCpu->setOnTick([&](int pTicks) {
+  this->mCpu->set_on_tick([&](int pTicks) {
     this->tick(pTicks);
   });
   this->mMemoryBus->register_entry(0xff, 1, this->mIoBus);
