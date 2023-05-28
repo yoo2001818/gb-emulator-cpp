@@ -5,12 +5,19 @@
 #include "timer.hpp"
 #include "wram.hpp"
 #include "hram.hpp"
+#include "ppu.hpp"
 
 #ifndef __SYSTEM_HPP__
 #define __SYSTEM_HPP__
 
 namespace gb_system
 {
+  enum system_type
+  {
+    DMG,
+    CGB,
+    SGB
+  };
   class system
   {
   public:
@@ -21,8 +28,10 @@ namespace gb_system
     shared_ptr<timer> mTimer;
     shared_ptr<wram> mWram;
     shared_ptr<hram> mHram;
+    shared_ptr<ppu> mPpu;
+    system_type mSystemType;
 
-    system();
+    system(system_type pSystemType);
     void reset();
     void tick(int pTicks);
   };

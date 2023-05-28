@@ -1,6 +1,6 @@
 #include "system.hpp"
 
-gb_system::system::system()
+gb_system::system::system(system_type pSystemType) : mSystemType(pSystemType)
 {
   this->mMemoryBus = make_shared<memory::memory_bus>();
   this->mIoBus = make_shared<memory::io_bus>();
@@ -9,6 +9,7 @@ gb_system::system::system()
   this->mTimer = make_shared<timer>(*this);
   this->mWram = make_shared<wram>(*this);
   this->mHram = make_shared<hram>(*this);
+  this->mPpu = make_shared<ppu>(*this);
   this->reset();
 }
 
@@ -21,6 +22,7 @@ void gb_system::system::reset()
   this->mTimer->reset();
   this->mWram->reset();
   this->mHram->reset();
+  this->mPpu->reset();
 
   this->mCpu->setOnTick([&](int pTicks) {
     this->tick(pTicks);
@@ -30,11 +32,13 @@ void gb_system::system::reset()
   this->mTimer->register_system();
   this->mWram->register_system();
   this->mHram->register_system();
+  this->mPpu->reset();
 }
 
 void gb_system::system::tick(int pTicks)
 {
   for (auto i = 0; i < pTicks; i += 1) {
     this->mTimer->tick();
+    this->mPpu->tick();
   }
 }

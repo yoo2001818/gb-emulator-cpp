@@ -1,7 +1,11 @@
 #include "interrupter.hpp"
+#include "system.hpp"
+#include "../memory/pointer_memory.hpp"
 
 using namespace gb_system;
 
+static const uint8_t IO_IE = 0xff;
+static const uint8_t IO_IF = 0x0f;
 static const uint16_t IE_ADDR = 0xffff;
 static const uint16_t IF_ADDR = 0xff0f;
 
@@ -13,7 +17,8 @@ void interrupter::reset()
 
 void interrupter::register_system()
 {
-  // FIXME: Register IE/IF on IO Bus
+  this->mSystem.mIoBus->register_entry(IO_IE, make_shared<::memory::pointer_memory>(this->mInterruptsEnable));
+  this->mSystem.mIoBus->register_entry(IO_IF, make_shared<::memory::pointer_memory>(this->mInterruptsFlag));
 }
 
 void interrupter::queue_interrupt(int pType)

@@ -9,7 +9,7 @@ namespace gb_system
     virtual ~component() {};
     virtual void reset() = 0;
     virtual void register_system() = 0;
-    virtual void tick(int pTicks) = 0;
+    virtual void tick() = 0;
   };
 }
 
