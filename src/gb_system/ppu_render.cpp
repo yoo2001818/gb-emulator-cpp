@@ -11,7 +11,7 @@ namespace gb_system
   static const uint8_t LCDC_BG_TILE_MAP_DISPLAY_SELECT = 8;
   static const uint8_t LCDC_BG_WINDOW_TILE_DATA_SELECT = 16;
   static const uint8_t LCDC_WINDOW_DISPLAY = 32;
-  static const uint8_t LCDC_TILE_MAP_DISPLAY_SELECT = 64;
+  static const uint8_t LCDC_WINDOW_TILE_MAP_DISPLAY_SELECT = 64;
   static const uint8_t LCDC_ENABLED = 128;
 
   int ppu_get_bg_tile_data_address(ppu &pPpu, uint8_t pId, uint8_t pBank)
@@ -44,26 +44,27 @@ namespace gb_system
     return pPpu.mObjPalette[addr] | (pPpu.mObjPalette[addr + 1] << 8);
   }
 
-  void ppu_render_line_bg(ppu &pPpu, std::array<uint8_t, LCD_WIDTH> &pLine)
+  void ppu_render_line_bg(
+      ppu &pPpu,
+      std::array<uint8_t, LCD_WIDTH> &pLine,
+      int pSrcX,
+      int pSrcY,
+      int pDstX,
+      int pDstY,
+      int pMapAddr)
   {
-    if (
-        pPpu.mSystem.mSystemType != system_type::CGB &&
-        !(pPpu.mLcdc & LCDC_BG_WINDOW_DISPLAY))
-    {
-      // GB: If BG_WINDOW_DISPLAY is 0, don't render BG and window
-      return;
-    }
-    int drawY = pPpu.mLy + pPpu.mScy;
-    int tileY = (drawY / 8) & 0x1f;
-    int py = drawY % 8;
-    int fbAddr = pPpu.mLy * LCD_WIDTH;
-    int bgMapIdBase = (pPpu.mLcdc & LCDC_BG_TILE_MAP_DISPLAY_SELECT) ? 0x1c00 : 0x1800;
-    int bgMapAttrBase = (pPpu.mLcdc & LCDC_BG_TILE_MAP_DISPLAY_SELECT) ? 0x3c00 : 0x3800;
+    // int drawY = pPpu.mLy + pPpu.mScy;
+    int tileY = (pSrcY / 8) & 0x1f;
+    int py = pSrcY % 8;
+    int fbAddr = pDstY * LCD_WIDTH;
+    int bgMapIdBase = pMapAddr;
+    int bgMapAttrBase = pMapAddr + 0x2000;
 
-    int currentX = 0;
+    int currentX = pDstX;
     do
     {
-      int drawX = currentX + pPpu.mScx;
+      // int drawX = currentX + pPpu.mScx;
+      int drawX = currentX + pSrcX;
       int tileX = (drawX / 8) & 0x1f;
       int px = 7 - (drawX % 8);
 
@@ -105,10 +106,6 @@ namespace gb_system
     } while (currentX < LCD_WIDTH);
   }
 
-  void ppu_render_line_window(ppu &pPpu, std::array<uint8_t, LCD_WIDTH> &pLine)
-  {
-  }
-
   void ppu_render_line_sprite(ppu &pPpu, std::array<uint8_t, LCD_WIDTH> &pLine)
   {
   }
@@ -116,6 +113,30 @@ namespace gb_system
   void ppu_render_line(ppu &pPpu)
   {
     std::array<uint8_t, LCD_WIDTH> line;
-    ppu_render_line_bg(pPpu, line);
+    if (
+        pPpu.mSystem.mSystemType == system_type::CGB ||
+        (pPpu.mLcdc & LCDC_BG_WINDOW_DISPLAY))
+    {
+      // GB: If BG_WINDOW_DISPLAY is 0, don't render BG and window
+      ppu_render_line_bg(
+          pPpu,
+          line,
+          pPpu.mScx,
+          pPpu.mLy + pPpu.mScy,
+          0,
+          pPpu.mLy,
+          pPpu.mLcdc & LCDC_BG_TILE_MAP_DISPLAY_SELECT ? 0x1c00 : 0x1800);
+      int windowY = pPpu.mLy - pPpu.mWy;
+      if (pPpu.mLcdc & LCDC_WINDOW_DISPLAY && windowY >= 0) {
+        ppu_render_line_bg(
+            pPpu,
+            line,
+            -pPpu.mWx + 7,
+            windowY,
+            max(0, pPpu.mWx - 7),
+            pPpu.mLy,
+            pPpu.mLcdc & LCDC_WINDOW_TILE_MAP_DISPLAY_SELECT ? 0x1c00 : 0x1800);
+      }
+    }
   }
 };
