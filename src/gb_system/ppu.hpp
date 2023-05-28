@@ -19,7 +19,7 @@ namespace gb_system
     void reset();
     void register_system();
     void tick();
-  private:
+  // private:
     system &mSystem;
     uint8_t mLcdc;
     uint8_t mStat;
