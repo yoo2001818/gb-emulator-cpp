@@ -59,6 +59,7 @@ namespace gb_system
     int fbAddr = pDstY * LCD_WIDTH;
     int bgMapIdBase = pMapAddr;
     int bgMapAttrBase = pMapAddr + 0x2000;
+    bool isCGB = pPpu.mSystem.mSystemType == system_type::CGB;
 
     int currentX = pDstX;
     do
@@ -88,7 +89,7 @@ namespace gb_system
       {
         uint8_t vx = tileHFlip ? 7 - px : px;
         uint8_t colorId = ((tileLine1 >> vx) & 1) | (((tileLine2 >> vx) & 1) << 1);
-        if (pPpu.mSystem.mSystemType != system_type::CGB)
+        if (isCGB)
         {
           auto color = ppu_get_bg_palette_color(pPpu, tilePalette, colorId);
           pPpu.mFramebuffer[fbAddr + currentX] = color;
@@ -108,6 +109,77 @@ namespace gb_system
 
   void ppu_render_line_sprite(ppu &pPpu, std::array<uint8_t, LCD_WIDTH> &pLine)
   {
+    bool lcdcPriority = pPpu.mLcdc & LCDC_BG_WINDOW_DISPLAY;
+    bool isCGB = pPpu.mSystem.mSystemType == system_type::CGB;
+    int spriteHeight = (pPpu.mLcdc & LCDC_OBJ_SIZE) ? 16 : 8;
+    int dstY = pPpu.mLy;
+    int fbAddr = dstY * LCD_WIDTH;
+    // Read OAM
+    // Scan for candidates
+    std::array<uint8_t, 10> drawIds;
+    int drawIdsPos = 0;
+    for (int i = 0; i < 160; i += 4)
+    {
+      int spriteY = pPpu.mOam[i] - 16;
+      int py = dstY - spriteY;
+      if (py < 0 || py >= spriteHeight) continue;
+      int spriteX = pPpu.mOam[i + 1] - 8;
+      if (spriteX <= -8 || spriteX > LCD_WIDTH) continue;
+      drawIds[drawIdsPos % 10] = i;
+      drawIdsPos += 1;
+    }
+    // Draw OAM
+    int drawCount = 0;
+    for (int i = drawIdsPos - 1; i >= 0; i -= 1)
+    {
+      if (drawCount >= 10) break;
+      drawCount += 1;
+      int addr = drawIds[i % 10];
+      int spriteY = pPpu.mOam[i] - 16;
+      int py = dstY - spriteY;
+      if (py < 0 || py >= spriteHeight) continue;
+      int spriteX = pPpu.mOam[i + 1] - 8;
+      int tileId = pPpu.mOam[i + 2];
+      int attributes = pPpu.mOam[i + 3];
+
+      int obp = (attributes & 16) ? pPpu.mObp1 : pPpu.mObp0;
+      bool flipX = attributes & 32;
+      bool flipY = attributes & 64;
+      bool objPriority = attributes & 128;
+      int palette = attributes & 7;
+      int tileBank = (attributes >> 3) & 1;
+
+      if (flipY) py = spriteHeight - 1 - py;
+      if (spriteHeight == 16) tileId = tileId & 0xfe;
+
+      int tileAddr = tileBank * 0x2000 + tileId * 16 + py * 2;
+      uint8_t tileLine1 = pPpu.mVram[tileAddr];
+      uint8_t tileLine2 = pPpu.mVram[tileAddr + 1];
+
+      for (int x = 0; x < 8; x += 1)
+      {
+        int px = flipX ? x : (7 - x);
+        int currentX = spriteX + x;
+        if (currentX < 0 || currentX >= LCD_WIDTH) continue;
+        int colorId = ((tileLine1 >> px) & 1) | (((tileLine2 >> px) & 1) << 1);
+        if (colorId == 0) continue;
+        uint8_t prevData = pLine[currentX];
+        bool bgColor = prevData & 1;
+        bool bgPriority = prevData & 2;
+        if (isCGB)
+        {
+          if (bgColor && lcdcPriority && (objPriority || bgPriority)) continue;
+          int color = ppu_get_obj_palette_color(pPpu, palette, colorId);
+          pPpu.mFramebuffer[fbAddr + currentX] = color;
+        }
+        else
+        {
+          if (bgColor && objPriority) continue;
+          int color = (obp >> (colorId << 1)) & 0x03;
+          pPpu.mFramebuffer[fbAddr + currentX] = color | 0x8000;
+        }
+      }
+    }
   }
 
   void ppu_render_line(ppu &pPpu)
@@ -137,6 +209,10 @@ namespace gb_system
             pPpu.mLy,
             pPpu.mLcdc & LCDC_WINDOW_TILE_MAP_DISPLAY_SELECT ? 0x1c00 : 0x1800);
       }
+    }
+    if (pPpu.mLcdc & LCDC_OBJ_DISPLAY)
+    {
+      ppu_render_line_sprite(pPpu, line);
     }
   }
 };

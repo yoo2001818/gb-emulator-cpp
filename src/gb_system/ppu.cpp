@@ -1,5 +1,6 @@
 #include "ppu.hpp"
 #include "system.hpp"
+#include "ppu_render.hpp"
 #include "../memory/lambda_memory.hpp"
 #include "../memory/pointer_memory.hpp"
 
@@ -255,7 +256,7 @@ void gb_system::ppu::handle_mode3_enter()
 void gb_system::ppu::handle_mode0_enter()
 {
   this->mMode = 0;
-  // FIXME: Render line
+  ppu_render_line(*this);
   if (this->mStat & 0x08)
   {
     // H-blank interrupt requested
