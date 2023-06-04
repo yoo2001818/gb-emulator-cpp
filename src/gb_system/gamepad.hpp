@@ -6,6 +6,17 @@
 
 namespace gb_system
 {
+  enum gamepad_button
+  {
+    RIGHT = 0,
+    LEFT = 1,
+    UP = 2,
+    DOWN = 3,
+    A = 4,
+    B = 5,
+    SELECT = 6,
+    START = 7
+  };
   class system;
   class gamepad : public component
   {
@@ -14,10 +25,11 @@ namespace gb_system
     void reset();
     void register_system();
     void tick();
+    void set(int pButtonId, bool pState);
 
   private:
     system &mSystem;
-    std::array<bool, 10> mButtons;
+    std::array<bool, 8> mButtons;
     bool mSelectedNibbleHigh;
   };
 }

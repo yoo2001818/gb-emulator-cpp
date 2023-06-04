@@ -6,6 +6,7 @@
 #include "wram.hpp"
 #include "hram.hpp"
 #include "ppu.hpp"
+#include "gamepad.hpp"
 
 #ifndef __SYSTEM_HPP__
 #define __SYSTEM_HPP__
@@ -29,6 +30,7 @@ namespace gb_system
     shared_ptr<wram> mWram;
     shared_ptr<hram> mHram;
     shared_ptr<ppu> mPpu;
+    shared_ptr<gamepad> mGamepad;
     system_type mSystemType;
 
     system(system_type pSystemType);
