@@ -1,6 +1,7 @@
 #include "../cpu/cpu.hpp"
 #include "../memory/memory_bus.hpp"
 #include "../memory/io_bus.hpp"
+#include "../cartridge/cartridge.hpp"
 #include "interrupter.hpp"
 #include "timer.hpp"
 #include "wram.hpp"
@@ -26,6 +27,7 @@ namespace gb_system
     shared_ptr<interrupter> mInterrupter;
     shared_ptr<memory::memory_bus> mMemoryBus;
     shared_ptr<memory::io_bus> mIoBus;
+    shared_ptr<cartridge::cartridge> mCartridge;
     shared_ptr<timer> mTimer;
     shared_ptr<wram> mWram;
     shared_ptr<hram> mHram;
