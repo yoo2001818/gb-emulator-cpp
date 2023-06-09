@@ -23,7 +23,7 @@ void interrupter::register_system()
 
 void interrupter::queue_interrupt(int pType)
 {
-  auto& memory = this->mCpu.mMemory;
+  auto &memory = this->mCpu.mMemory;
   auto ifReg = memory->read(IF_ADDR);
   ifReg |= 1 << pType;
   memory->write(IF_ADDR, ifReg);
@@ -31,7 +31,7 @@ void interrupter::queue_interrupt(int pType)
 
 bool interrupter::is_accepting_interrupt()
 {
-  auto& memory = this->mCpu.mMemory;
+  auto &memory = this->mCpu.mMemory;
   auto ieReg = memory->read(IE_ADDR);
   return ieReg & 0x1f;
 }
@@ -40,7 +40,7 @@ void interrupter::step()
 {
   if (this->mCpu.mIsInterruptsEnabled || !this->mCpu.mIsRunning)
   {
-    auto& memory = this->mCpu.mMemory;
+    auto &memory = this->mCpu.mMemory;
     // Check interrupts
     auto ifReg = memory->read(IF_ADDR);
     auto ieReg = memory->read(IE_ADDR);

@@ -18,7 +18,6 @@ namespace cpu::op
   {
     uint8_t value = R2::read(pCpu);
     R1::write(pCpu, value);
-    pCpu.skip(1);
     pCpu.tick(R1::clocks + R2::clocks + 1);
   }
 
@@ -26,7 +25,8 @@ namespace cpu::op
     requires is_base_of<reg::reg8, R>::value
   void ld8_r_d8(cpu &pCpu)
   {
-    if (R::clocks > 0) pCpu.tick(R::clocks);
+    if (R::clocks > 0)
+      pCpu.tick(R::clocks);
     uint8_t value = pCpu.read_next8();
     R::write(pCpu, value);
     pCpu.tick(2);

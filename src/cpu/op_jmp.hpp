@@ -12,32 +12,32 @@ namespace cpu::cond
 {
   class cond
   {
-    public:
+  public:
     static bool test(cpu &pCpu) { return false; };
   };
 
   class cond_nz : cond
   {
-    public:
-    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_Z) != 0; };
+  public:
+    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_Z) == 0; };
   };
 
   class cond_z : cond
   {
-    public:
-    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_Z) == 0; };
+  public:
+    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_Z) != 0; };
   };
 
   class cond_nc : cond
   {
-    public:
-    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_C) != 0; };
+  public:
+    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_C) == 0; };
   };
 
   class cond_c : cond
   {
-    public:
-    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_C) == 0; };
+  public:
+    static bool test(cpu &pCpu) { return (pCpu.mRegister.f & reg::FLAG_C) != 0; };
   };
 
 };
@@ -50,9 +50,12 @@ namespace cpu::op
     requires is_base_of<cond::cond, C>::value
   void jp_cond_a16(cpu &pCpu)
   {
-    if (C::test(pCpu)) {
+    if (C::test(pCpu))
+    {
       jp_a16(pCpu);
-    } else {
+    }
+    else
+    {
       pCpu.skip(2);
       pCpu.tick(3);
     }
@@ -65,9 +68,12 @@ namespace cpu::op
     requires is_base_of<cond::cond, C>::value
   void jr_cond_r8(cpu &pCpu)
   {
-    if (C::test(pCpu)) {
+    if (C::test(pCpu))
+    {
       jr_r8(pCpu);
-    } else {
+    }
+    else
+    {
       pCpu.skip(1);
       pCpu.tick(2);
     }
@@ -79,9 +85,12 @@ namespace cpu::op
     requires is_base_of<cond::cond, C>::value
   void call_cond_a16(cpu &pCpu)
   {
-    if (C::test(pCpu)) {
+    if (C::test(pCpu))
+    {
       call_a16(pCpu);
-    } else {
+    }
+    else
+    {
       pCpu.skip(2);
       pCpu.tick(3);
     }
@@ -94,10 +103,13 @@ namespace cpu::op
     requires is_base_of<cond::cond, C>::value
   void ret_cond(cpu &pCpu)
   {
-    if (C::test(pCpu)) {
+    if (C::test(pCpu))
+    {
       pCpu.tick(1);
       ret(pCpu);
-    } else {
+    }
+    else
+    {
       pCpu.tick(2);
     }
   }

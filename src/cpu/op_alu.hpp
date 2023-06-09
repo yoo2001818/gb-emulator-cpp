@@ -171,8 +171,10 @@ namespace cpu
       {
         int result = static_cast<int>(pValue) + 1;
         uint8_t flags = 0;
-        if (pValue == 0xff) flags |= reg::FLAG_Z;
-        if ((pValue & 0xf) == 0xf) flags |= reg::FLAG_H;
+        if (pValue == 0xff)
+          flags |= reg::FLAG_Z;
+        if ((pValue & 0xf) == 0xf)
+          flags |= reg::FLAG_H;
         flags |= pCpu.mRegister.f & reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result & 0xff;
@@ -186,9 +188,11 @@ namespace cpu
       {
         int result = static_cast<int>(pValue) - 1;
         uint8_t flags = 0;
-        if (pValue == 1) flags |= reg::FLAG_Z;
+        if (pValue == 1)
+          flags |= reg::FLAG_Z;
         flags |= reg::FLAG_N;
-        if ((pValue & 0xf) == 0) flags |= reg::FLAG_H;
+        if ((pValue & 0xf) == 0)
+          flags |= reg::FLAG_H;
         flags |= pCpu.mRegister.f & reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result & 0xff;
@@ -202,7 +206,8 @@ namespace cpu
       {
         uint8_t result = ((pValue & 0xf) << 4) | ((pValue >> 4) & 0xf);
         uint8_t flags = 0;
-        if (result == 0) flags |= reg::FLAG_Z;
+        if (result == 0)
+          flags |= reg::FLAG_Z;
         return result;
       }
     };
@@ -215,7 +220,8 @@ namespace cpu
         uint8_t oldBit = pValue & 0x80;
         uint8_t result = ((pValue << 1) & 0xff) | (oldBit >> 7);
         uint8_t flags = 0;
-        if (oldBit) flags |= reg::FLAG_C;
+        if (oldBit)
+          flags |= reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result;
       }
@@ -228,11 +234,13 @@ namespace cpu
       {
         uint8_t oldBit = pValue & 0x80;
         uint8_t result = (pValue << 1) & 0xff;
-        if (pCpu.mRegister.f & reg::FLAG_C) {
+        if (pCpu.mRegister.f & reg::FLAG_C)
+        {
           result |= 1;
         }
         uint8_t flags = 0;
-        if (oldBit) flags |= reg::FLAG_C;
+        if (oldBit)
+          flags |= reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result;
       }
@@ -246,7 +254,8 @@ namespace cpu
         uint8_t oldBit = pValue & 0x01;
         uint8_t result = ((pValue >> 1) & 0xff) | (oldBit << 7);
         uint8_t flags = 0;
-        if (oldBit) flags |= reg::FLAG_C;
+        if (oldBit)
+          flags |= reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result;
       }
@@ -259,11 +268,13 @@ namespace cpu
       {
         uint8_t oldBit = pValue & 0x01;
         uint8_t result = (pValue >> 1) & 0xff;
-        if (pCpu.mRegister.f & reg::FLAG_C) {
+        if (pCpu.mRegister.f & reg::FLAG_C)
+        {
           result |= 0x80;
         }
         uint8_t flags = 0;
-        if (oldBit) flags |= reg::FLAG_C;
+        if (oldBit)
+          flags |= reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result;
       }
@@ -277,7 +288,8 @@ namespace cpu
         uint8_t oldBit = pValue & 0x80;
         uint8_t result = (pValue << 1) & 0xff;
         uint8_t flags = 0;
-        if (oldBit) flags |= reg::FLAG_C;
+        if (oldBit)
+          flags |= reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result;
       }
@@ -291,7 +303,8 @@ namespace cpu
         uint8_t oldBit = pValue & 0x01;
         uint8_t result = ((pValue >> 1) & 0xff) | (pValue & 0x80);
         uint8_t flags = 0;
-        if (oldBit) flags |= reg::FLAG_C;
+        if (oldBit)
+          flags |= reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result;
       }
@@ -305,7 +318,8 @@ namespace cpu
         uint8_t oldBit = pValue & 0x01;
         uint8_t result = (pValue >> 1) & 0xff;
         uint8_t flags = 0;
-        if (oldBit) flags |= reg::FLAG_C;
+        if (oldBit)
+          flags |= reg::FLAG_C;
         pCpu.mRegister.f = flags;
         return result;
       }
@@ -376,9 +390,11 @@ namespace cpu
       requires conjunction<is_base_of<alu::op_unary, Op>, is_base_of<reg::reg8, R>>::value
     void alu_unary(cpu &pCpu)
     {
-      if (R::clocks > 0) pCpu.tick(R::clocks);
+      if (R::clocks > 0)
+        pCpu.tick(R::clocks);
       auto n = R::read(pCpu);
-      if (R::clocks > 0) pCpu.tick(R::clocks);
+      if (R::clocks > 0)
+        pCpu.tick(R::clocks);
       auto result = Op::exec(pCpu, n);
       R::write(pCpu, result);
       pCpu.tick(1);
@@ -388,14 +404,17 @@ namespace cpu
       requires conjunction<is_base_of<alu::op_unary, Op>, is_base_of<reg::reg8, R>>::value
     void alu_unary_shift(cpu &pCpu)
     {
-      if (R::clocks > 0) pCpu.tick(R::clocks);
+      if (R::clocks > 0)
+        pCpu.tick(R::clocks);
       auto n = R::read(pCpu);
-      if (R::clocks > 0) pCpu.tick(R::clocks);
+      if (R::clocks > 0)
+        pCpu.tick(R::clocks);
       auto result = Op::exec(pCpu, n);
       R::write(pCpu, result);
 
       uint8_t flags = pCpu.mRegister.f | ~reg::FLAG_Z;
-      if (result == 0) flags |= reg::FLAG_Z;
+      if (result == 0)
+        flags |= reg::FLAG_Z;
       pCpu.mRegister.f = flags;
       pCpu.tick(1);
     }
@@ -404,11 +423,12 @@ namespace cpu
       requires conjunction<is_base_of<alu::op_unary, Op>, is_base_of<reg::reg8, R>>::value
     void alu_unary_read(cpu &pCpu)
     {
-      if (R::clocks > 0) pCpu.tick(R::clocks);
+      if (R::clocks > 0)
+        pCpu.tick(R::clocks);
       auto n = R::read(pCpu);
       Op::exec(pCpu, n);
       pCpu.tick(1);
-    }   
+    }
   }
 }
 

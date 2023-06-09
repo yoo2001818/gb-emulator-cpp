@@ -1,3 +1,4 @@
+#include <iostream>
 #include "op_jmp.hpp"
 
 void cpu::op::jp_a16(cpu &pCpu)
@@ -17,7 +18,8 @@ void cpu::op::jp_hl(cpu &pCpu)
 void cpu::op::jr_r8(cpu &pCpu)
 {
   int offset = pCpu.read_next8();
-  if (offset & 0x80) {
+  if (offset & 0x80)
+  {
     offset = -((~offset + 1) & 0xff);
   }
   uint16_t addr = (pCpu.mRegister.pc + offset) & 0xffff;
@@ -29,7 +31,7 @@ void cpu::op::call_a16(cpu &pCpu)
 {
   auto nextAddr = pCpu.read_next16();
   pCpu.tick(2);
-  auto pushAddr = pCpu.mRegister.pc + 1;
+  auto pushAddr = pCpu.mRegister.pc;
   pCpu.push16(pushAddr);
   pCpu.tick(2);
   pCpu.mRegister.pc = nextAddr;
@@ -38,7 +40,7 @@ void cpu::op::call_a16(cpu &pCpu)
 void cpu::op::rst_nn(cpu &pCpu, uint16_t addr)
 {
   pCpu.tick(1);
-  auto pushAddr = pCpu.mRegister.pc + 1;
+  auto pushAddr = pCpu.mRegister.pc;
   pCpu.push16(pushAddr);
   pCpu.tick(2);
   pCpu.mRegister.pc = addr;

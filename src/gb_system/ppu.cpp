@@ -22,10 +22,10 @@ static const int IO_OCPS = 0x6a;
 static const int IO_OCPD = 0x6b;
 
 static const int VBLANK_LY = 144;
-static const int MAX_LY = 144;
+static const int MAX_LY = 153;
 
 static const int LINE_CLOCK_MODE_0 = 144; // H-Blank
-static const int LINE_CLOCK_MODE_2 = 80; // OAM scanning
+static const int LINE_CLOCK_MODE_2 = 80;  // OAM scanning
 static const int LINE_CLOCK_MODE_3 = 168; // Rendering
 static const int LINE_CLOCK_MODE_23 = LINE_CLOCK_MODE_2 + LINE_CLOCK_MODE_3;
 static const int LINE_CLOCK_MODE_230 = LINE_CLOCK_MODE_23 + LINE_CLOCK_MODE_0;
@@ -59,65 +59,57 @@ void gb_system::ppu::reset()
 
 void gb_system::ppu::register_system()
 {
-  auto& memoryBus = this->mSystem.mMemoryBus;
-  auto& ioBus = this->mSystem.mIoBus;
+  auto &memoryBus = this->mSystem.mMemoryBus;
+  auto &ioBus = this->mSystem.mIoBus;
 
   // VRAM
-  memoryBus->register_entry(0x80, 0x20, make_shared<::memory::lambda_memory>(
-    [&](uint16_t pAddr)
-    {
+  memoryBus->register_entry(0x80, 0x20, make_shared<::memory::lambda_memory>([&](uint16_t pAddr)
+                                                                             {
       int offset = this->mVramBank * 0x2000;
-      return this->mVram[offset + pAddr];
-    },
-    [&](uint16_t pAddr, uint8_t pValue)
-    {
-      int offset = this->mVramBank * 0x2000;
-      this->mVram[offset + pAddr] = pValue;
-    }
-  ));
+      return this->mVram[offset + pAddr]; },
+                                                                             [&](uint16_t pAddr, uint8_t pValue)
+                                                                             {
+                                                                               int offset = this->mVramBank * 0x2000;
+                                                                               this->mVram[offset + pAddr] = pValue;
+                                                                             }));
   // OAM
-  memoryBus->register_entry(0xfe, 1, make_shared<::memory::lambda_memory>(
-    [&](uint16_t pAddr)
-    {
-      return this->mOam[pAddr];
-    },
-    [&](uint16_t pAddr, uint8_t pValue)
-    {
-      this->mOam[pAddr] = pValue;
-    }
-  ));
+  memoryBus->register_entry(0xfe, 1, make_shared<::memory::lambda_memory>([&](uint16_t pAddr)
+                                                                          { return this->mOam[pAddr]; },
+                                                                          [&](uint16_t pAddr, uint8_t pValue)
+                                                                          {
+                                                                            this->mOam[pAddr] = pValue;
+                                                                          }));
 
   ioBus->register_entry(IO_LCDC, make_shared<::memory::lambda_memory>(
-    [&](uint16_t pAddr)
-    {
-      return this->mLcdc;
-    },
-    [&](uint16_t pAddr, uint8_t pValue)
-    {
-      if ((this->mLcdc & 0x80) != (pValue & 0x80))
-      {
-        // LCD stopping / restarting
-        this->mLy = 0;
-        this->mMode = 0;
-        this->mLineClock = 0;
-        this->mClocks = 0;
-      }
-      this->mLcdc = pValue;
-    }
-  ));
+                                     [&](uint16_t pAddr)
+                                     {
+                                       return this->mLcdc;
+                                     },
+                                     [&](uint16_t pAddr, uint8_t pValue)
+                                     {
+                                       if ((this->mLcdc & 0x80) != (pValue & 0x80))
+                                       {
+                                         // LCD stopping / restarting
+                                         this->mLy = 0;
+                                         this->mMode = 0;
+                                         this->mLineClock = 0;
+                                         this->mClocks = 0;
+                                       }
+                                       this->mLcdc = pValue;
+                                     }));
   ioBus->register_entry(IO_STAT, make_shared<::memory::lambda_memory>(
-    [&](uint16_t pAddr)
-    {
-      uint8_t bits = this->mStat & 0xf8;
-      bits |= this->mMode;
-      if (this->mLy == this->mLyc) bits |= 4;
-      return bits;
-    },
-    [&](uint16_t pAddr, uint8_t pValue)
-    {
-      this->mStat = pValue;
-    }
-  ));
+                                     [&](uint16_t pAddr)
+                                     {
+                                       uint8_t bits = this->mStat & 0xf8;
+                                       bits |= this->mMode;
+                                       if (this->mLy == this->mLyc)
+                                         bits |= 4;
+                                       return bits;
+                                     },
+                                     [&](uint16_t pAddr, uint8_t pValue)
+                                     {
+                                       this->mStat = pValue;
+                                     }));
   ioBus->register_entry(IO_SCY, make_shared<::memory::pointer_memory>(this->mScy));
   ioBus->register_entry(IO_SCX, make_shared<::memory::pointer_memory>(this->mScx));
   ioBus->register_entry(IO_LY, make_shared<::memory::pointer_memory>(this->mLy));
@@ -129,51 +121,51 @@ void gb_system::ppu::register_system()
   ioBus->register_entry(IO_WX, make_shared<::memory::pointer_memory>(this->mWx));
 
   // CGB implementation
-  if (this->mSystem.mSystemType == system_type::CGB) {
+  if (this->mSystem.mSystemType == system_type::CGB)
+  {
     ioBus->register_entry(IO_VBK, make_shared<::memory::lambda_memory>(
-      [&](uint16_t pAddr)
-      {
-        return 0xfe | this->mVramBank;
-      },
-      [&](uint16_t pAddr, uint8_t pValue)
-      {
-        this->mVramBank = pValue & 1;
-      }
-    ));
+                                      [&](uint16_t pAddr)
+                                      {
+                                        return 0xfe | this->mVramBank;
+                                      },
+                                      [&](uint16_t pAddr, uint8_t pValue)
+                                      {
+                                        this->mVramBank = pValue & 1;
+                                      }));
     ioBus->register_entry(IO_BCPS, make_shared<::memory::pointer_memory>(this->mBcps));
     ioBus->register_entry(IO_BCPD, make_shared<::memory::lambda_memory>(
-      [&](uint16_t pAddr)
-      {
-        int pos = this->mBcps & 0x3f;
-        return this->mBgPalette[pos];
-      },
-      [&](uint16_t pAddr, uint8_t pValue)
-      {
-        int pos = this->mBcps & 0x3f;
-        bool autoIncrement = this->mBcps & 0x80;
-        if (autoIncrement) {
-          this->mBcps = ((pos + 1) & 0x3f) | 0x80;
-        }
-        this->mBgPalette[pos] = pValue;
-      }
-    ));
+                                       [&](uint16_t pAddr)
+                                       {
+                                         int pos = this->mBcps & 0x3f;
+                                         return this->mBgPalette[pos];
+                                       },
+                                       [&](uint16_t pAddr, uint8_t pValue)
+                                       {
+                                         int pos = this->mBcps & 0x3f;
+                                         bool autoIncrement = this->mBcps & 0x80;
+                                         if (autoIncrement)
+                                         {
+                                           this->mBcps = ((pos + 1) & 0x3f) | 0x80;
+                                         }
+                                         this->mBgPalette[pos] = pValue;
+                                       }));
     ioBus->register_entry(IO_OCPS, make_shared<::memory::pointer_memory>(this->mOcps));
     ioBus->register_entry(IO_OCPD, make_shared<::memory::lambda_memory>(
-      [&](uint16_t pAddr)
-      {
-        int pos = this->mOcps & 0x3f;
-        return this->mObjPalette[pos];
-      },
-      [&](uint16_t pAddr, uint8_t pValue)
-      {
-        int pos = this->mOcps & 0x3f;
-        bool autoIncrement = this->mOcps & 0x80;
-        if (autoIncrement) {
-          this->mOcps = ((pos + 1) & 0x3f) | 0x80;
-        }
-        this->mObjPalette[pos] = pValue;
-      }
-    ));
+                                       [&](uint16_t pAddr)
+                                       {
+                                         int pos = this->mOcps & 0x3f;
+                                         return this->mObjPalette[pos];
+                                       },
+                                       [&](uint16_t pAddr, uint8_t pValue)
+                                       {
+                                         int pos = this->mOcps & 0x3f;
+                                         bool autoIncrement = this->mOcps & 0x80;
+                                         if (autoIncrement)
+                                         {
+                                           this->mOcps = ((pos + 1) & 0x3f) | 0x80;
+                                         }
+                                         this->mObjPalette[pos] = pValue;
+                                       }));
   }
 }
 
@@ -203,7 +195,7 @@ void gb_system::ppu::tick()
   {
     // Render
     this->handle_mode0_enter();
-  } 
+  }
   else if (this->mLineClock == LINE_CLOCK_MODE_230)
   {
     // H-Blank

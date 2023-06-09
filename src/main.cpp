@@ -88,7 +88,7 @@ int main()
 
   auto rom = readRom("res/drmario.gb");
 
-  auto system = gb_system::system(gb_system::system_type::CGB);
+  auto system = gb_system::system(gb_system::system_type::DMG);
   system.mCartridge = std::make_shared<cartridge::cartridge_raw>(rom, system);
   system.reset();
 
@@ -109,9 +109,15 @@ int main()
     SDL_RenderClear(renderer);
 
     // Run 1 frame
-    for (int i = 0; i < 17556; i += 1)
+    int stopClock = system.mCpu->mClocks + 17556;
+    while (system.mCpu->mClocks < stopClock)
     {
-      system.tick(1);
+      system.mInterrupter->step();
+      if (!system.mCpu->mIsRunning)
+      {
+        system.mCpu->mClocks += 1;
+        system.tick(1);
+      }
     }
 
     // Draw PPU's framebuffer onto the screen
