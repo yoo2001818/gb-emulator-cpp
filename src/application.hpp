@@ -10,13 +10,15 @@ class application
 {
 public:
   void init();
-  void loop();
+  void update_pixels();
+  void handle_event(SDL_Event &event);
+  void update();
   void destroy();
   SDL_Window *mWindow;
   SDL_Renderer *mRenderer;
   SDL_Texture *mFbTexture;
-  SDL_PixelFormat *mFbFmt;
-  std::shared_ptr<gb_system::system> system;
+  SDL_PixelFormat *mFbFormat;
+  std::shared_ptr<gb_system::system> mSystem;
 };
 
 #endif // __APPLICATION_HPP__
