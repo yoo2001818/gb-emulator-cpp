@@ -2,7 +2,7 @@
 #include <vector>
 #include <format>
 #include "application.hpp"
-#include "cartridge/cartridge_raw.hpp"
+#include "../cartridge/cartridge_raw.hpp"
 
 // FIXME: Move it somewhere else
 std::vector<uint8_t> readRom(const std::string &pFilename)
@@ -43,23 +43,23 @@ uint32_t convertColor(uint16_t value)
   return (red << 24) | (green << 16) | (blue << 8) | 0xff;
 }
 
-void application::init()
+app::application::application()
 {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0)
   {
-    throw std::runtime_error(std::format("Unable to initialize SDL: {}", SDL_GetError()));
+    throw std::runtime_error(SDL_GetError());
   }
 
   this->mWindow = SDL_CreateWindow("gb-emulator-cpp", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WINDOW_SHOWN);
   if (this->mWindow == nullptr)
   {
-    throw std::runtime_error(std::format("Unable to create window: {}", SDL_GetError()));
+    throw std::runtime_error(SDL_GetError());
   }
 
   this->mRenderer = SDL_CreateRenderer(this->mWindow, -1, SDL_RENDERER_ACCELERATED);
   if (this->mRenderer == nullptr)
   {
-    throw std::runtime_error(std::format("Unable to create renderer: {}", SDL_GetError()));
+    throw std::runtime_error(SDL_GetError());
   }
 
   // Create frame buffer texture
@@ -67,13 +67,13 @@ void application::init()
   this->mFbTexture = SDL_CreateTexture(this->mRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, gb_system::LCD_WIDTH, gb_system::LCD_HEIGHT);
   if (this->mFbTexture == nullptr)
   {
-    throw std::runtime_error(std::format("Unable to create texture: {}", SDL_GetError()));
+    throw std::runtime_error(SDL_GetError());
   }
 
   this->mFbFormat = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
   if (this->mFbFormat == nullptr)
   {
-    throw std::runtime_error(std::format("Unable to create format: {}", SDL_GetError()));
+    throw std::runtime_error(SDL_GetError());
   }
 
   auto rom = readRom("res/drmario.gb");
@@ -83,7 +83,7 @@ void application::init()
   this->mSystem->reset();
 }
 
-void application::update_pixels()
+void app::application::update_pixels()
 {
   uint32_t *pixels;
   int pitch;
@@ -109,11 +109,11 @@ void application::update_pixels()
   SDL_UnlockTexture(this->mFbTexture);
 }
 
-void application::handle_event(SDL_Event &event)
+void app::application::handle_event(SDL_Event &event)
 {
 }
 
-void application::update()
+void app::application::update()
 {
   SDL_RenderClear(this->mRenderer);
 
@@ -138,7 +138,7 @@ void application::update()
   SDL_RenderPresent(this->mRenderer);
 }
 
-void application::destroy()
+app::application::~application()
 {
   this->mSystem = nullptr;
 

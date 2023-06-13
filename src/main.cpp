@@ -6,41 +6,39 @@
 #include <SDL2/SDL_video.h>
 #include "gb_system/system.hpp"
 #include "cartridge/cartridge_raw.hpp"
-#include "application.hpp"
+#include "app/application.hpp"
 
 int main()
 {
-  application app;
-  app.init();
-
-  while (true)
   {
-    SDL_Event event;
-    if (SDL_PollEvent(&event))
+    app::application app;
+
+    while (true)
     {
-      if (event.type == SDL_QUIT)
+      SDL_Event event;
+      if (SDL_PollEvent(&event))
       {
-        break;
+        if (event.type == SDL_QUIT)
+        {
+          break;
+        }
+        app.handle_event(event);
       }
-      app.handle_event(event);
-    }
 
-    uint64_t beginTime = SDL_GetTicks64();
+      uint64_t beginTime = SDL_GetTicks64();
 
-    app.update();
+      app.update();
 
-    uint64_t endTime = SDL_GetTicks64();
-    int32_t deltaTime = static_cast<int32_t>(endTime - beginTime);
-    int32_t sleepTime = 12 - deltaTime;
+      uint64_t endTime = SDL_GetTicks64();
+      int32_t deltaTime = static_cast<int32_t>(endTime - beginTime);
+      int32_t sleepTime = 12 - deltaTime;
 
-    if (sleepTime > 0)
-    {
-      SDL_Delay(sleepTime);
+      if (sleepTime > 0)
+      {
+        SDL_Delay(sleepTime);
+      }
     }
   }
-
-  app.destroy();
-
   SDL_Quit();
 
   return 0;
