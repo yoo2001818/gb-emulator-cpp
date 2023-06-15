@@ -1,6 +1,8 @@
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <format>
+#include <SDL2/SDL_scancode.h>
 #include "application.hpp"
 #include "../cartridge/cartridge_raw.hpp"
 
@@ -75,6 +77,48 @@ app::application::application()
 
 void app::application::handle_event(SDL_Event &event)
 {
+  switch (event.type)
+  {
+  case SDL_KEYDOWN:
+  case SDL_KEYUP:
+  {
+    int key = -1;
+    switch (event.key.keysym.scancode)
+    {
+    case SDL_SCANCODE_Z:
+      key = gb_system::gamepad_button::B;
+      break;
+    case SDL_SCANCODE_X:
+      key = gb_system::gamepad_button::A;
+      break;
+    case SDL_SCANCODE_RETURN:
+      key = gb_system::gamepad_button::START;
+      break;
+    case SDL_SCANCODE_BACKSPACE:
+      key = gb_system::gamepad_button::SELECT;
+      break;
+    case SDL_SCANCODE_UP:
+      key = gb_system::gamepad_button::UP;
+      break;
+    case SDL_SCANCODE_LEFT:
+      key = gb_system::gamepad_button::LEFT;
+      break;
+    case SDL_SCANCODE_RIGHT:
+      key = gb_system::gamepad_button::RIGHT;
+      break;
+    case SDL_SCANCODE_DOWN:
+      key = gb_system::gamepad_button::DOWN;
+      break;
+    }
+    if (key >= 0)
+    {
+      this->mSystem->mGamepad->set(key, event.type == SDL_KEYDOWN);
+    }
+    break;
+  }
+  default:
+    break;
+  }
 }
 
 void app::application::update()
