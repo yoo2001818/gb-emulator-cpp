@@ -9,17 +9,18 @@ namespace gb_system
   class timer : public component
   {
   public:
-    timer(system &pSystem) : mSystem(pSystem){};
-    void reset();
-    void register_system();
-    void tick();
-  private:
-    system &mSystem;
     int mClocks;
     int mTima;
     int mTma;
     int mTac;
     bool mTimaDelayed;
+    timer(system &pSystem) : mSystem(pSystem){};
+    void reset();
+    void register_system();
+    void tick();
+
+  private:
+    system &mSystem;
     void post_update_tima();
   };
 }

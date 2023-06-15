@@ -18,7 +18,7 @@ namespace gb_system
   {
     bool bgTileSigned = pPpu.mLcdc & LCDC_BG_WINDOW_TILE_DATA_SELECT;
     int base = pBank * 0x2000;
-    if (bgTileSigned)
+    if (!bgTileSigned)
     {
       if (pId >= 128)
       {

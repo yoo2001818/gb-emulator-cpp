@@ -84,7 +84,7 @@ void app::application::update()
   auto &system = *(this->mSystem);
 
   // Run 1 frame
-  int stopClock = system.mCpu->mClocks + 1000;
+  int stopClock = system.mCpu->mClocks + 17556;
   while (system.mCpu->mClocks < stopClock)
   {
     system.mInterrupter->step();
@@ -103,13 +103,22 @@ void app::application::update()
   this->mFontRenderer->write(std::format("CLK: {}\n", system.mCpu->mClocks));
   this->mFontRenderer->write(std::format("PC: {:04x} ", system.mCpu->mRegister.pc));
   this->mFontRenderer->write(std::format("A: {:02x} ", system.mCpu->mRegister.a));
-  this->mFontRenderer->write(std::format("B: {:02x} ", system.mCpu->mRegister.b));
-  this->mFontRenderer->write(std::format("C: {:02x} ", system.mCpu->mRegister.c));
-  this->mFontRenderer->write(std::format("D: {:02x} ", system.mCpu->mRegister.d));
-  this->mFontRenderer->write(std::format("E: {:02x} ", system.mCpu->mRegister.e));
+  this->mFontRenderer->write(std::format("BC: {:04x} ", system.mCpu->mRegister.bc()));
+  this->mFontRenderer->write(std::format("DE: {:04x} ", system.mCpu->mRegister.de()));
   this->mFontRenderer->write(std::format("F: {:02x} ", system.mCpu->mRegister.f));
-  this->mFontRenderer->write(std::format("HL: {:04x}\n", system.mCpu->mRegister.hl()));
-  this->mFontRenderer->write(std::format("LY: {:02x}", system.mPpu->mLy));
+  this->mFontRenderer->write(std::format("HL: {:04x} ", system.mCpu->mRegister.hl()));
+  this->mFontRenderer->write(std::format("SP: {:04x} ", system.mCpu->mRegister.sp));
+  this->mFontRenderer->write(std::format("IME: {}\n", system.mCpu->mIsInterruptsEnabled));
+  this->mFontRenderer->write(std::format("IE: {:02x} ", system.mInterrupter->mInterruptsEnable));
+  this->mFontRenderer->write(std::format("IF: {:02x}\n", system.mInterrupter->mInterruptsFlag));
+  this->mFontRenderer->write(std::format("LCDC: {:02x} ", system.mPpu->mLcdc));
+  this->mFontRenderer->write(std::format("STAT: {:02x} ", system.mPpu->mStat));
+  this->mFontRenderer->write(std::format("LY: {:02x} ", system.mPpu->mLy));
+  this->mFontRenderer->write(std::format("LYC: {:02x}\n", system.mPpu->mLyc));
+  this->mFontRenderer->write(std::format("DIV: {:02x} ", (system.mTimer->mClocks / 256) & 0xff));
+  this->mFontRenderer->write(std::format("TIMA: {:02x} ", system.mTimer->mTima));
+  this->mFontRenderer->write(std::format("TMA: {:02x} ", system.mTimer->mTma));
+  this->mFontRenderer->write(std::format("TAC: {:02x}\n", system.mTimer->mTac));
 
   SDL_RenderPresent(this->mRenderer);
 }

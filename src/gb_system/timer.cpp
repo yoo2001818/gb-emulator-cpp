@@ -3,8 +3,8 @@
 #include "../memory/lambda_memory.hpp"
 
 const int DIV_TICK_RATE = 256;
-const int TIMA_TICK_RATES[] = { 1024, 16, 64, 256 };
-const int TIMA_TICK_BITS[] = { 512, 8, 32, 128 };
+const int TIMA_TICK_RATES[] = {1024, 16, 64, 256};
+const int TIMA_TICK_BITS[] = {512, 8, 32, 128};
 const uint8_t IO_DIV = 0x04;
 const uint8_t IO_TIMA = 0x05;
 const uint8_t IO_TMA = 0x06;
@@ -22,57 +22,57 @@ void gb_system::timer::reset()
 void gb_system::timer::register_system()
 {
   this->mSystem.mIoBus->register_entry(IO_DIV, make_shared<memory::lambda_memory>(
-    [&](uint16_t pAddr)
-    {
-      return this->mClocks / DIV_TICK_RATE;
-    },
-    [&](uint16_t pAddr, uint8_t pValue)
-    {
-      this->mClocks = 0;
-      if (this->mTac & 0x4)
-      {
-        auto oldBit = this->mClocks & TIMA_TICK_BITS[this->mTac & 0x3];
-        if (oldBit)
-        {
-          this->mTima += 1;
-          this->post_update_tima();
-        }
-      }
-    }
-  ));
+                                                   [&](uint16_t pAddr)
+                                                   {
+                                                     return (this->mClocks / DIV_TICK_RATE) & 0xff;
+                                                   },
+                                                   [&](uint16_t pAddr, uint8_t pValue)
+                                                   {
+                                                     this->mClocks = 0;
+                                                     if (this->mTac & 0x4)
+                                                     {
+                                                       auto oldBit = this->mClocks & TIMA_TICK_BITS[this->mTac & 0x3];
+                                                       if (oldBit)
+                                                       {
+                                                         this->mTima += 1;
+                                                         this->post_update_tima();
+                                                       }
+                                                     }
+                                                   }));
   this->mSystem.mIoBus->register_entry(IO_TIMA, make_shared<memory::lambda_memory>(
-    [&](uint16_t pAddr) { return this->mTima; },
-    [&](uint16_t pAddr, uint8_t pValue)
-    {
-      this->mTima = pValue;
-    }
-  ));
+                                                    [&](uint16_t pAddr)
+                                                    { return this->mTima; },
+                                                    [&](uint16_t pAddr, uint8_t pValue)
+                                                    {
+                                                      this->mTima = pValue;
+                                                    }));
   this->mSystem.mIoBus->register_entry(IO_TMA, make_shared<memory::lambda_memory>(
-    [&](uint16_t pAddr) { return this->mTma; },
-    [&](uint16_t pAddr, uint8_t pValue)
-    {
-      this->mTma = pValue;
-    }
-  ));
+                                                   [&](uint16_t pAddr)
+                                                   { return this->mTma; },
+                                                   [&](uint16_t pAddr, uint8_t pValue)
+                                                   {
+                                                     this->mTma = pValue;
+                                                   }));
   this->mSystem.mIoBus->register_entry(IO_TAC, make_shared<memory::lambda_memory>(
-    [&](uint16_t pAddr) { return this->mTac; },
-    [&](uint16_t pAddr, uint8_t pValue)
-    {
-      auto oldTac = this->mTac;
-      this->mTac = pValue;
-      // Update the clock immediately
-      // DMG bug - TAC increments even if enabled flag becomes false
-      if (oldTac & 0x4)
-      {
-        auto oldBit = this->mClocks & TIMA_TICK_BITS[oldTac & 0x3];
-        auto newBit = this->mClocks & TIMA_TICK_BITS[pValue & 0x3];
-        if (!newBit && oldBit) {
-          this->mTima += 1;
-          this->post_update_tima();
-        }
-      }
-    }
-  ));
+                                                   [&](uint16_t pAddr)
+                                                   { return this->mTac; },
+                                                   [&](uint16_t pAddr, uint8_t pValue)
+                                                   {
+                                                     auto oldTac = this->mTac;
+                                                     this->mTac = pValue;
+                                                     // Update the clock immediately
+                                                     // DMG bug - TAC increments even if enabled flag becomes false
+                                                     if (oldTac & 0x4)
+                                                     {
+                                                       auto oldBit = this->mClocks & TIMA_TICK_BITS[oldTac & 0x3];
+                                                       auto newBit = this->mClocks & TIMA_TICK_BITS[pValue & 0x3];
+                                                       if (!newBit && oldBit)
+                                                       {
+                                                         this->mTima += 1;
+                                                         this->post_update_tima();
+                                                       }
+                                                     }
+                                                   }));
 }
 
 void gb_system::timer::tick()

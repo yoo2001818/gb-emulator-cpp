@@ -17,10 +17,10 @@ namespace gb_system
   private:
     system &mSystem;
     cpu::cpu &mCpu;
-    uint8_t mInterruptsEnable;
-    uint8_t mInterruptsFlag;
 
   public:
+    uint8_t mInterruptsEnable;
+    uint8_t mInterruptsFlag;
     interrupter(system &pSystem, cpu::cpu &pCpu) : mSystem(pSystem), mCpu(pCpu){};
     void reset();
     void register_system();
