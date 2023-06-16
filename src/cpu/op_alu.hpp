@@ -426,7 +426,12 @@ namespace cpu
       if (R::clocks > 0)
         pCpu.tick(R::clocks);
       auto n = R::read(pCpu);
-      Op::exec(pCpu, n);
+      auto result = Op::exec(pCpu, n);
+
+      uint8_t flags = pCpu.mRegister.f | ~reg::FLAG_Z;
+      if (result == 0)
+        flags |= reg::FLAG_Z;
+      pCpu.mRegister.f = flags;
       pCpu.tick(1);
     }
   }

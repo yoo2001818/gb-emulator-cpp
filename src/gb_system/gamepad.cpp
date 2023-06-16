@@ -29,11 +29,11 @@ void gb_system::gamepad::register_system()
                                                     },
                                                     [&](uint16_t pAddr, uint8_t pValue)
                                                     {
-                                                      if (pValue & 0x20)
+                                                      if ((pValue & 0x20) == 0)
                                                       {
                                                         this->mSelectedNibbleHigh = true;
                                                       }
-                                                      else if (pValue & 0x10)
+                                                      else if ((pValue & 0x10) == 0)
                                                       {
                                                         this->mSelectedNibbleHigh = false;
                                                       }

@@ -138,13 +138,13 @@ namespace gb_system
         break;
       drawCount += 1;
       int addr = drawIds[i % 10];
-      int spriteY = pPpu.mOam[i] - 16;
+      int spriteY = pPpu.mOam[addr] - 16;
       int py = dstY - spriteY;
       if (py < 0 || py >= spriteHeight)
         continue;
-      int spriteX = pPpu.mOam[i + 1] - 8;
-      int tileId = pPpu.mOam[i + 2];
-      int attributes = pPpu.mOam[i + 3];
+      uint8_t spriteX = pPpu.mOam[addr + 1] - 8;
+      uint8_t tileId = pPpu.mOam[addr + 2];
+      uint8_t attributes = pPpu.mOam[addr + 3];
 
       int obp = (attributes & 16) ? pPpu.mObp1 : pPpu.mObp0;
       bool flipX = attributes & 32;
