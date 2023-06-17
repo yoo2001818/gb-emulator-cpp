@@ -29,7 +29,7 @@ namespace cpu
       return (this->a << 8) | this->f;
     }
 
-    void af(const uint16_t& pValue)
+    void af(const uint16_t &pValue)
     {
       this->a = pValue >> 8;
       this->f = pValue & 0xf0;
@@ -40,7 +40,7 @@ namespace cpu
       return (this->b << 8) | this->c;
     }
 
-    void bc(const uint16_t& pValue)
+    void bc(const uint16_t &pValue)
     {
       this->b = pValue >> 8;
       this->c = pValue & 0xff;
@@ -51,7 +51,7 @@ namespace cpu
       return (this->d << 8) | this->e;
     }
 
-    void de(const uint16_t& pValue)
+    void de(const uint16_t &pValue)
     {
       this->d = pValue >> 8;
       this->e = pValue & 0xff;
@@ -62,12 +62,11 @@ namespace cpu
       return (this->h << 8) | this->l;
     }
 
-    void hl(const uint16_t& pValue)
+    void hl(const uint16_t &pValue)
     {
       this->h = pValue >> 8;
       this->l = pValue & 0xff;
     }
-    
   };
 
   class cpu
@@ -98,7 +97,8 @@ namespace cpu
     void tick(int pClocks)
     {
       this->mClocks += pClocks;
-      if (this->mOnTick) {
+      if (this->mOnTick)
+      {
         this->mOnTick(pClocks);
       }
     }

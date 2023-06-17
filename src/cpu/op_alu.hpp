@@ -42,12 +42,13 @@ namespace cpu
       static uint8_t exec(cpu &pCpu, const uint8_t pValue1, const uint8_t pValue2)
       {
         int result = static_cast<int>(pValue1) + pValue2;
-        if (pCpu.mRegister.f & reg::FLAG_C)
+        int carry = (pCpu.mRegister.f & reg::FLAG_C) ? 1 : 0;
+        if (carry)
           result += 1;
         uint8_t flags = 0;
         if ((result & 0xff) == 0)
           flags |= reg::FLAG_Z;
-        if (((pValue1 & 0xf) + (pValue2 & 0xf)) & 0x10)
+        if (((pValue1 & 0xf) + (pValue2 & 0xf) + carry) & 0x10)
           flags |= reg::FLAG_H;
         if (result & 0x100)
           flags |= reg::FLAG_C;
@@ -81,13 +82,14 @@ namespace cpu
       static uint8_t exec(cpu &pCpu, const uint8_t pValue1, const uint8_t pValue2)
       {
         int result = static_cast<int>(pValue1) - pValue2;
-        if (pCpu.mRegister.f & reg::FLAG_C)
+        int carry = (pCpu.mRegister.f & reg::FLAG_C) ? 1 : 0;
+        if (carry)
           result -= 1;
         uint8_t flags = 0;
         if ((result & 0xff) == 0)
           flags |= reg::FLAG_Z;
         flags |= reg::FLAG_N;
-        if ((pValue1 & 0xf) - (pValue2 & 0xf) < 0)
+        if (((pValue1 & 0xf) - (pValue2 & 0xf) - carry) & 0x10)
           flags |= reg::FLAG_H;
         if (result < 0)
           flags |= reg::FLAG_C;

@@ -9,13 +9,16 @@ void cpu::op::add16_sp_n(cpu &pCpu)
 {
   int n1 = reg::reg16_sp::read(pCpu);
   int n2 = pCpu.read_next8();
-  if (n2 & 0x80) {
+  if (n2 & 0x80)
+  {
     n2 = -((~n2 + 1) & 0xff);
   }
   int result = n1 + n2;
   uint8_t flags = 0;
-  if (((n1 & 0xfff) + (n2 & 0xfff)) & 0x1000) flags |= reg::FLAG_H;
-  if (result & 0x10000) flags |= reg::FLAG_C;
+  if (((n1 & 0xfff) + (n2 & 0xfff)) & 0x1000)
+    flags |= reg::FLAG_H;
+  if (result & 0x10000)
+    flags |= reg::FLAG_C;
   pCpu.mRegister.f = flags;
   reg::reg16_sp::write(pCpu, result);
   pCpu.tick(4);
@@ -28,18 +31,22 @@ void cpu::op::daa(cpu &pCpu)
   int correction = 0;
   uint8_t flags = pCpu.mRegister.f;
 
-  if ((flags & reg::FLAG_H) || (!(flags & reg::FLAG_N) && (value & 0xf) > 9)) {
+  if ((flags & reg::FLAG_H) || (!(flags & reg::FLAG_N) && ((value & 0xf) > 9)))
+  {
     correction |= 0x6;
   }
-  if ((flags & reg::FLAG_C) || (!(flags & reg::FLAG_N) && value > 0x99)) {
+  if ((flags & reg::FLAG_C) || (!(flags & reg::FLAG_N) && (value > 0x99)))
+  {
     correction |= 0x60;
     carry = true;
   }
   value += (flags & reg::FLAG_N) ? -correction : correction;
 
   flags = flags & reg::FLAG_N;
-  if ((value & 0xff) == 0) flags |= reg::FLAG_Z;
-  if (carry) flags |= reg::FLAG_C;
+  if ((value & 0xff) == 0)
+    flags |= reg::FLAG_Z;
+  if (carry)
+    flags |= reg::FLAG_C;
   pCpu.mRegister.f = flags;
   reg::reg8_a::write(pCpu, value);
   pCpu.tick(1);
