@@ -39,6 +39,12 @@ namespace ui
   private:
     std::vector<std::shared_ptr<node>> mChildren;
   };
+  class button : public element
+  {
+  };
+  class v_stack : public element
+  {
+  };
 }
 
 #endif // __NODE_HPP__
