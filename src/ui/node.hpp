@@ -6,6 +6,14 @@
 
 namespace ui
 {
+  class rect
+  {
+  public:
+    int x;
+    int y;
+    int width;
+    int height;
+  };
   class render_handle;
   class node
   {
@@ -23,6 +31,8 @@ namespace ui
     std::weak_ptr<node> mParent;
     int mWidth;
     int mHeight;
+    std::vector<rect> mSubRects;
+    rect mRect;
   };
   class element : public node
   {
