@@ -14,6 +14,10 @@ namespace ui
     int width;
     int height;
   };
+  class style
+  {
+  public:
+    };
   class render_handle;
   class node
   {
@@ -22,15 +26,9 @@ namespace ui
     virtual ~node();
     virtual void layout() = 0;
     virtual void render(render_handle &mRenderHandle) = 0;
-    int width();
-    void width(int mWidth);
-    int height();
-    void height(int mHeight);
 
   private:
     std::weak_ptr<node> mParent;
-    int mWidth;
-    int mHeight;
     std::vector<rect> mSubRects;
     rect mRect;
   };
@@ -48,6 +46,9 @@ namespace ui
 
   private:
     std::vector<std::shared_ptr<node>> mChildren;
+  };
+  class text : public node
+  {
   };
   class button : public element
   {
