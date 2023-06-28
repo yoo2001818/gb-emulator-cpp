@@ -17,13 +17,13 @@ namespace ui
   class style
   {
   public:
-    };
+  };
   class render_handle;
   class node
   {
   public:
-    node();
-    virtual ~node();
+    node(){};
+    virtual ~node(){};
     virtual void layout() = 0;
     virtual void render(render_handle &mRenderHandle) = 0;
 
@@ -35,8 +35,8 @@ namespace ui
   class element : public node
   {
   public:
-    element();
-    virtual ~element();
+    element(){};
+    virtual ~element(){};
     virtual void layout() = 0;
     virtual void render(render_handle &mRenderHandle) = 0;
 
