@@ -1,11 +1,11 @@
 #include "node.hpp"
 
-void ui::element::addChild(std::shared_ptr<node> pNode)
+void ui::element::add_child(std::shared_ptr<node> pNode)
 {
   this->mChildren.push_back(pNode);
 }
 
-void ui::element::removeChild(std::shared_ptr<node> pNode)
+void ui::element::remove_child(std::shared_ptr<node> pNode)
 {
   auto iter = this->mChildren.begin();
   while (iter != this->mChildren.end())
