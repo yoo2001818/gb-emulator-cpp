@@ -67,6 +67,18 @@ namespace ui
   class v_stack : public element
   {
   };
+  class body : public element
+  {
+  };
+  enum element_type
+  {
+    text,
+    button
+  };
+  class document
+  {
+    std::shared_ptr<node> create_element(element_type pType);
+  };
 }
 
 #endif // __NODE_HPP__
