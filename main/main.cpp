@@ -4,9 +4,9 @@
 #include <memory>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
-#include "gb_system/system.hpp"
-#include "cartridge/cartridge_raw.hpp"
-#include "app/application.hpp"
+#include "../src/gb_system/system.hpp"
+#include "../src/cartridge/cartridge_raw.hpp"
+#include "../src/app/application.hpp"
 
 int main()
 {
