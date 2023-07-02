@@ -1,5 +1,6 @@
 #include <memory>
 #include <vector>
+#include <optional>
 
 #ifndef __NODE_HPP__
 #define __NODE_HPP__
@@ -39,6 +40,11 @@ namespace ui
     layout_node(){};
     virtual ~layout_node(){};
   };
+  class query_selector
+  {
+  public:
+    std::string class_name;
+  };
   class element : public node
   {
   public:
@@ -47,9 +53,18 @@ namespace ui
     virtual void layout() = 0;
     virtual void render(render_handle &mRenderHandle) = 0;
 
-    void add_child(std::shared_ptr<node> pNode);
-    void remove_child(std::shared_ptr<node> pNode);
+    void append_child(const std::shared_ptr<node> &pNode);
+    void remove_child(const std::shared_ptr<node> &pNode);
+    void insert_before(const std::shared_ptr<node> &pNode, const std::shared_ptr<node> &pPosition);
+    bool contains(const std::shared_ptr<node> &pNode);
+    std::shared_ptr<node> clone_node();
     std::vector<std::shared_ptr<node>> &children();
+    std::shared_ptr<node> query_selector(const query_selector &pSelector);
+    std::vector<std::shared_ptr<node>> query_selector_all(const ui::query_selector &pSelector);
+
+    std::optional<std::string> get_attribute(const std::string &pName);
+    void set_attribute(const std::string &pName, const std::string &pValue);
+    bool has_attribute(const std::string &pName);
 
   private:
     std::vector<layout_node> mPreNodes;
