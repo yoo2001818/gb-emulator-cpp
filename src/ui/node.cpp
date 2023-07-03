@@ -84,3 +84,26 @@ void ui::node::_query_selector_all_impl(const ui::query_selector &pSelector, std
     (*iter)->_query_selector_all_impl(pSelector, pList);
   }
 }
+
+std::optional<std::string> ui::node::get_attribute(const std::string &pName)
+{
+  auto iter = this->mAttributes.find(pName);
+  if (iter == this->mAttributes.end())
+    return std::nullopt;
+  return iter->second;
+}
+
+void ui::node::set_attribute(const std::string &pName, const std::string &pValue)
+{
+  this->mAttributes.insert_or_assign(pName, pValue);
+}
+
+bool ui::node::has_attribute(const std::string &pName)
+{
+  return this->mAttributes.contains(pName);
+}
+
+std::unordered_map<std::string, std::string> &ui::node::attributes()
+{
+  return this->mAttributes;
+}

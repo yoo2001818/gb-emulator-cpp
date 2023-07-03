@@ -1,6 +1,7 @@
 #include <memory>
 #include <vector>
 #include <optional>
+#include <unordered_map>
 
 #ifndef __NODE_HPP__
 #define __NODE_HPP__
@@ -50,10 +51,12 @@ namespace ui
     std::optional<std::string> get_attribute(const std::string &pName);
     void set_attribute(const std::string &pName, const std::string &pValue);
     bool has_attribute(const std::string &pName);
+    std::unordered_map<std::string, std::string> &attributes();
 
   private:
     std::weak_ptr<node> mParent;
     std::vector<std::shared_ptr<node>> mChildren;
+    std::unordered_map<std::string, std::string> mAttributes;
 
     void _query_selector_all_impl(const ui::query_selector &pSelector, std::vector<std::shared_ptr<node>> &pList);
   };
