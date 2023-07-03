@@ -32,7 +32,7 @@ void ui::node::insert_before(const std::shared_ptr<node> &pNode, const std::shar
   }
 }
 
-bool ui::node::contains(const std::shared_ptr<node> &pNode)
+bool ui::node::contains(const std::shared_ptr<node> &pNode) const
 {
   for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
   {
@@ -88,7 +88,7 @@ void ui::node::_query_selector_all_impl(const ui::query_selector &pSelector, std
   }
 }
 
-std::optional<std::string> ui::node::get_attribute(const std::string &pName)
+std::optional<std::string> ui::node::get_attribute(const std::string &pName) const
 {
   auto iter = this->mAttributes.find(pName);
   if (iter == this->mAttributes.end())
@@ -101,19 +101,29 @@ void ui::node::set_attribute(const std::string &pName, const std::string &pValue
   this->mAttributes.insert_or_assign(pName, pValue);
 }
 
-bool ui::node::has_attribute(const std::string &pName)
+bool ui::node::has_attribute(const std::string &pName) const
 {
   return this->mAttributes.contains(pName);
 }
 
-std::unordered_map<std::string, std::string> &ui::node::attributes()
+const std::unordered_map<std::string, std::string> &ui::node::attributes() const
 {
   return this->mAttributes;
 }
 
-ui::node_type ui::node::node_type()
+const std::weak_ptr<ui::node> &ui::node::parent_node() const
+{
+  return this->mParentNode;
+}
+
+const ui::node_type &ui::node::node_type() const
 {
   return this->mNodeType;
+}
+
+const std::string &ui::node::node_name() const
+{
+  return this->mNodeName;
 }
 
 void ui::node::_update_parent(node *pNode)
@@ -126,4 +136,62 @@ void ui::node::_update_parent(node *pNode)
   {
     this->mParentNode.reset();
   }
+}
+
+ui::element::element(const std::string &pTagName) : mTagName(pTagName)
+{
+  this->mNodeType = node_type::element;
+  this->mNodeName = pTagName;
+}
+
+void ui::element::print(std::ostream &pWhere) const
+{
+  pWhere << "<";
+  pWhere << this->mNodeName;
+
+  for (auto iter = this->mAttributes.begin(); iter != this->mAttributes.end(); iter++)
+  {
+    pWhere << " ";
+    pWhere << iter->first;
+    pWhere << "=\"";
+    pWhere << iter->second;
+    pWhere << "\"";
+  }
+
+  pWhere << ">";
+
+  for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
+  {
+    pWhere << *iter;
+  }
+
+  pWhere << "</";
+  pWhere << this->mNodeName;
+  pWhere << ">";
+}
+
+const std::string &ui::element::tag_name() const
+{
+  return this->mTagName;
+}
+
+ui::text::text(const std::string &pData) : mData(pData)
+{
+  this->mNodeType = node_type::text;
+  this->mNodeName = "#text";
+}
+
+void ui::text::print(std::ostream &pWhere) const
+{
+  pWhere << this->mData;
+}
+
+const std::string &ui::text::data() const
+{
+  return this->mData;
+}
+
+void ui::text::data(const std::string &pData)
+{
+  this->mData = pData;
 }
