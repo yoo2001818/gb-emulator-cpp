@@ -31,7 +31,12 @@ namespace ui
   public:
     std::string class_name;
   };
-  class node
+  enum node_type
+  {
+    element,
+    text,
+  };
+  class node : public std::enable_shared_from_this<node>
   {
   public:
     node(){};
@@ -53,12 +58,16 @@ namespace ui
     bool has_attribute(const std::string &pName);
     std::unordered_map<std::string, std::string> &attributes();
 
+    node_type node_type();
+
   private:
-    std::weak_ptr<node> mParent;
+    std::weak_ptr<node> mParentNode;
     std::vector<std::shared_ptr<node>> mChildren;
     std::unordered_map<std::string, std::string> mAttributes;
+    ui::node_type mNodeType = node_type::element;
 
     void _query_selector_all_impl(const ui::query_selector &pSelector, std::vector<std::shared_ptr<node>> &pList);
+    void _update_parent(node *pNode);
   };
   class text : public node
   {
@@ -74,14 +83,14 @@ namespace ui
   class body : public node
   {
   };
-  enum element_type
+  enum node_type
   {
     text,
     button
   };
   class document
   {
-    std::shared_ptr<node> create_element(element_type pType);
+    std::shared_ptr<node> create_element(node_type pType);
   };
 }
 

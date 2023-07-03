@@ -3,6 +3,7 @@
 void ui::node::append_child(const std::shared_ptr<node> &pNode)
 {
   this->mChildren.push_back(pNode);
+  pNode->_update_parent(this);
 }
 
 void ui::node::remove_child(const std::shared_ptr<node> &pNode)
@@ -12,6 +13,7 @@ void ui::node::remove_child(const std::shared_ptr<node> &pNode)
     if (&(**iter) == &(*pNode))
     {
       this->mChildren.erase(iter);
+      pNode->_update_parent(nullptr);
       break;
     }
   }
@@ -24,6 +26,7 @@ void ui::node::insert_before(const std::shared_ptr<node> &pNode, const std::shar
     if (&(**iter) == &(*pNode))
     {
       this->mChildren.insert(iter, pNode);
+      pNode->_update_parent(this);
       break;
     }
   }
@@ -106,4 +109,21 @@ bool ui::node::has_attribute(const std::string &pName)
 std::unordered_map<std::string, std::string> &ui::node::attributes()
 {
   return this->mAttributes;
+}
+
+ui::node_type ui::node::node_type()
+{
+  return this->mNodeType;
+}
+
+void ui::node::_update_parent(node *pNode)
+{
+  if (pNode != nullptr)
+  {
+    this->mParentNode = pNode->weak_from_this();
+  }
+  else
+  {
+    this->mParentNode.reset();
+  }
 }
