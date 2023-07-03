@@ -1,3 +1,5 @@
+#include <cctype>
+#include <algorithm>
 #include "node.hpp"
 
 void ui::node::append_child(const std::shared_ptr<node> &pNode)
@@ -46,6 +48,8 @@ bool ui::node::contains(const std::shared_ptr<node> &pNode) const
 
 std::shared_ptr<ui::node> ui::node::clone_node()
 {
+  // FIXME: Implement it properly; we don't have a way to initialize the node yet
+  /*
   std::shared_ptr<node> target = std::make_shared<node>();
   // FIXME: Copy attributes, etc
   for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
@@ -53,6 +57,8 @@ std::shared_ptr<ui::node> ui::node::clone_node()
     target->append_child((*iter)->clone_node());
   }
   return target;
+  */
+  return nullptr;
 }
 
 std::vector<std::shared_ptr<ui::node>> &ui::node::children()
@@ -146,8 +152,11 @@ ui::element::element(const std::string &pTagName) : mTagName(pTagName)
 
 void ui::element::print(std::ostream &pWhere) const
 {
+  auto nodeName = this->mNodeName;
+  std::transform(nodeName.begin(), nodeName.end(), nodeName.begin(), [](unsigned char c)
+                 { return std::tolower(c); });
   pWhere << "<";
-  pWhere << this->mNodeName;
+  pWhere << nodeName;
 
   for (auto iter = this->mAttributes.begin(); iter != this->mAttributes.end(); iter++)
   {
@@ -162,11 +171,11 @@ void ui::element::print(std::ostream &pWhere) const
 
   for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
   {
-    pWhere << *iter;
+    pWhere << **iter;
   }
 
   pWhere << "</";
-  pWhere << this->mNodeName;
+  pWhere << nodeName;
   pWhere << ">";
 }
 
@@ -194,4 +203,10 @@ const std::string &ui::text::data() const
 void ui::text::data(const std::string &pData)
 {
   this->mData = pData;
+}
+
+std::ostream &operator<<(std::ostream &out, const ui::node &pNode)
+{
+  pNode.print(out);
+  return out;
 }

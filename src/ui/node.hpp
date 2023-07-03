@@ -32,7 +32,7 @@ namespace ui
   public:
     std::string class_name;
   };
-  enum node_type
+  enum class node_type
   {
     element,
     text,
@@ -42,8 +42,8 @@ namespace ui
   public:
     node(){};
     virtual ~node(){};
-    virtual void layout() = 0;
-    virtual void render(render_handle &mRenderHandle) = 0;
+    // virtual void layout() = 0;
+    // virtual void render(render_handle &mRenderHandle) = 0;
     virtual void print(std::ostream &where) const = 0;
 
     void append_child(const std::shared_ptr<node> &pNode);
@@ -79,9 +79,9 @@ namespace ui
   {
   public:
     element(const std::string &pTagName);
-    virtual void print(std::ostream &where) const;
+    virtual void print(std::ostream &pWhere) const;
 
-    const std::string &tag_name();
+    const std::string &tag_name() const;
 
   protected:
     std::string mTagName;
@@ -90,7 +90,7 @@ namespace ui
   {
   public:
     text(const std::string &pData);
-    virtual void print(std::ostream &where) const;
+    virtual void print(std::ostream &pWhere) const;
 
     const std::string &data() const;
     void data(const std::string &pData);
@@ -107,21 +107,17 @@ namespace ui
   class body : public node
   {
   };
-  enum node_type
+  enum class element_type
   {
     text,
     button
   };
   class document
   {
-    std::shared_ptr<node> create_element(node_type pType);
+    std::shared_ptr<node> create_element(element_type pType);
   };
 }
 
-std::ostream &operator<<(std::ostream &out, const ui::node &pNode)
-{
-  pNode.print(out);
-  return out;
-}
+std::ostream &operator<<(std::ostream &out, const ui::node &pNode);
 
 #endif // __NODE_HPP__
