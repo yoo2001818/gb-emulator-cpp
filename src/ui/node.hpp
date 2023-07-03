@@ -20,36 +20,21 @@ namespace ui
   public:
     int width;
   };
-  class render_handle;
-  class node
+  class render_handle
   {
   public:
-    node(){};
-    virtual ~node(){};
-    virtual void layout() = 0;
-    virtual void render(render_handle &mRenderHandle) = 0;
-
-  private:
-    std::weak_ptr<node> mParent;
-    rect mBoundingRect;
-    style mStyle;
-  };
-  class layout_node
-  {
-  public:
-    layout_node(){};
-    virtual ~layout_node(){};
+    int dummy;
   };
   class query_selector
   {
   public:
     std::string class_name;
   };
-  class element : public node
+  class node
   {
   public:
-    element(){};
-    virtual ~element(){};
+    node(){};
+    virtual ~node(){};
     virtual void layout() = 0;
     virtual void render(render_handle &mRenderHandle) = 0;
 
@@ -67,22 +52,23 @@ namespace ui
     bool has_attribute(const std::string &pName);
 
   private:
-    std::vector<layout_node> mPreNodes;
-    std::vector<layout_node> mPostNodes;
+    std::weak_ptr<node> mParent;
     std::vector<std::shared_ptr<node>> mChildren;
+
+    void _query_selector_all_impl(const ui::query_selector &pSelector, std::vector<std::shared_ptr<node>> &pList);
   };
   class text : public node
   {
   private:
     std::string mData;
   };
-  class button : public element
+  class button : public node
   {
   };
-  class v_stack : public element
+  class v_stack : public node
   {
   };
-  class body : public element
+  class body : public node
   {
   };
   enum element_type
