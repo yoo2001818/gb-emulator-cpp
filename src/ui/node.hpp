@@ -65,12 +65,43 @@ namespace ui
     const ui::node_type &node_type() const;
     const std::string &node_name() const;
 
+    virtual const rect &offset_rect();
+
   protected:
     std::weak_ptr<node> mParentNode;
     std::vector<std::shared_ptr<node>> mChildren;
     std::unordered_map<std::string, std::string> mAttributes;
     ui::node_type mNodeType = node_type::element;
     std::string mNodeName;
+
+    // # Positioning and bounds
+    // Like HTML / CSS (and unlike other traditional layout engines), this
+    // should support various features properties that CSS implements -
+    // Including inline, box, flex formatting context, margin/padding/border,
+    // overflows, etc.
+    //
+    // This is simply to learn about how web browsers render HTML documents -
+    // I would've been using imgui if I wanted to build UI quickly - so I
+    // actually don't have reasoning for this.
+    //
+    // But, anyway, this decision have many consequences, and one thing is that
+    // a single element can't be rendered using a single rectangle. Their
+    // children could be flying all over the place, and the element itself can
+    // be defined using multiple rectangles - this is the case for inline and
+    // list-item, etc.
+    //
+    // Particularly, the inline formatting context is very troublesome to
+    // implement.
+    //
+    // To support all of the CSS-esque features, the element should contain
+    // the following:
+    //
+    // - The "offset" parent
+    // - The rectangles according to the offset
+    //
+    // Using the information, the element itself places their children (sets
+    // the position info directly). However the rectangle itself should be
+    // negotiated by the child as well.
 
     void _query_selector_all_impl(const ui::query_selector &pSelector, std::vector<std::shared_ptr<node>> &pList);
     void _update_parent(node *pNode);
