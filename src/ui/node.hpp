@@ -102,6 +102,17 @@ namespace ui
     // Using the information, the element itself places their children (sets
     // the position info directly). However the rectangle itself should be
     // negotiated by the child as well.
+    //
+    // ## Layout
+    // For the case of block formatting context (we omit float for the sake of
+    // simplicity), it's really simple enough - the container has fixed width
+    // and the children gets the fixed width as well. Since everything is
+    // predictable from the start, we can retrieve each child's required height
+    // and lay them out as we go.
+    //
+    // Inline is however quite complicated; but in a nutshell, each word can be
+    // broken up to separate lines, and we have to determine and lay the words
+    // out in multiple lines, while keeping in mind of the line height.
 
     void _query_selector_all_impl(const ui::query_selector &pSelector, std::vector<std::shared_ptr<node>> &pList);
     void _update_parent(node *pNode);
