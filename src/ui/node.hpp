@@ -113,6 +113,27 @@ namespace ui
     // Inline is however quite complicated; but in a nutshell, each word can be
     // broken up to separate lines, and we have to determine and lay the words
     // out in multiple lines, while keeping in mind of the line height.
+    // This means that each word, or inline-block element's width should be
+    // calculate beforehand, unlike block formatting context.
+    //
+    // To generalize everything, we do the following:
+    // - Each element, including text, can calculate "preferred width"
+    // - Only inline formatting context uses "preferred width" for now
+    // - Text processing is delegated to the element, which handles inline
+    //   formatting context by itself, after collecting all text and elements
+    // - We need to build another tree model for handling pseudo elements,
+    //   auto-generated elements, etc
+    // - Layout process is usually done in one inorder traversal - except for
+    //   elements that requires calculating preferred width, which involves
+    //   simulating the layout process
+    // - To avoid any confusion, we explicitly have to tell which variable uses
+    //   which box in the box model - e.g. content-box, border-box, padding-box
+    // - Margins are handled by the parent's layout model - it is completely
+    //   ignored by the element itself
+    // - The element itself only draws background, border, etc
+    //
+    // Implementing this is a big concern though; It's hard to model this into
+    // relevant structures.
 
     void _query_selector_all_impl(const ui::query_selector &pSelector, std::vector<std::shared_ptr<node>> &pList);
     void _update_parent(node *pNode);
