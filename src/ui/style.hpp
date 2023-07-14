@@ -30,26 +30,14 @@ namespace ui
     PC,
     PT,
     PERCENTAGE,
-    UNITLESS
+    UNITLESS,
+    AUTO
   };
   class length_unit
   {
   public:
     length_unit_type type;
     float value;
-  };
-  class length_auto_unit
-  {
-  public:
-    enum
-    {
-      AUTO,
-      LENGTH
-    } type;
-    union
-    {
-      length_unit_type length;
-    } value;
   };
   class color_value
   {
@@ -68,10 +56,10 @@ namespace ui
   class style_box
   {
   public:
-    length_auto_unit top;
-    length_auto_unit left;
-    length_auto_unit right;
-    length_auto_unit bottom;
+    length_unit top = {length_unit_type::AUTO, 0};
+    length_unit left = {length_unit_type::AUTO, 0};
+    length_unit right = {length_unit_type::AUTO, 0};
+    length_unit bottom = {length_unit_type::AUTO, 0};
   };
   enum class border_style
   {
@@ -89,7 +77,7 @@ namespace ui
   class style_border
   {
   public:
-    length_unit width;
+    length_unit width = {length_unit_type::UNITLESS, 0};
     border_style style;
     color_value color;
   };
@@ -155,8 +143,16 @@ namespace ui
   class style : public style_box
   {
   public:
-    style_box margin;
-    style_box padding;
+    style_box margin = {
+        {length_unit_type::UNITLESS, 0},
+        {length_unit_type::UNITLESS, 0},
+        {length_unit_type::UNITLESS, 0},
+        {length_unit_type::UNITLESS, 0}};
+    style_box padding = {
+        {length_unit_type::UNITLESS, 0},
+        {length_unit_type::UNITLESS, 0},
+        {length_unit_type::UNITLESS, 0},
+        {length_unit_type::UNITLESS, 0}};
     style_border_box border;
     // No image background is supported for now...
     std::optional<color_value> background;
@@ -164,12 +160,12 @@ namespace ui
     visibility_value visibility;
     position_value position;
     z_index_value zIndex;
-    length_auto_unit width;
-    length_auto_unit height;
-    std::optional<length_auto_unit> minWidth;
-    std::optional<length_auto_unit> minHeight;
-    std::optional<length_auto_unit> maxWidth;
-    std::optional<length_auto_unit> maxHeight;
+    length_unit width = {length_unit_type::AUTO, 0};
+    length_unit height = {length_unit_type::AUTO, 0};
+    std::optional<length_unit> minWidth;
+    std::optional<length_unit> minHeight;
+    std::optional<length_unit> maxWidth;
+    std::optional<length_unit> maxHeight;
     overflow_value overflow;
     color_value color;
     white_space_value whiteSpace;

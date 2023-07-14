@@ -150,6 +150,14 @@ ui::element::element(const std::string &pTagName) : mTagName(pTagName)
   this->mNodeName = pTagName;
 }
 
+void ui::element::layout(layout_handle &mLayoutHandle)
+{
+}
+
+void ui::element::render(render_handle &mRenderHandle)
+{
+}
+
 void ui::element::print(std::ostream &pWhere) const
 {
   auto nodeName = this->mNodeName;
@@ -184,10 +192,23 @@ const std::string &ui::element::tag_name() const
   return this->mTagName;
 }
 
+ui::style &ui::element::style()
+{
+  return this->mStyle;
+}
+
 ui::text::text(const std::string &pData) : mData(pData)
 {
   this->mNodeType = node_type::text;
   this->mNodeName = "#text";
+}
+
+void ui::text::layout(layout_handle &mLayoutHandle)
+{
+}
+
+void ui::text::render(render_handle &mRenderHandle)
+{
 }
 
 void ui::text::print(std::ostream &pWhere) const
