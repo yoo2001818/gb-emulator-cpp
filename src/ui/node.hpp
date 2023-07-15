@@ -3,6 +3,8 @@
 #include <optional>
 #include <unordered_map>
 #include <ostream>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
 #include "style.hpp"
 
 #ifndef __NODE_HPP__
@@ -82,7 +84,10 @@ namespace ui
   class render_handle
   {
   public:
-    int dummy;
+    SDL_Renderer *mRenderer;
+    SDL_Texture *mRootTexture;
+    // TODO: Elements with overflow (or new layer) should make their own
+    // texture and manage it
   };
   class layout_handle
   {
@@ -104,8 +109,8 @@ namespace ui
   public:
     node(){};
     virtual ~node(){};
-    virtual void layout(layout_handle &mLayoutHandle) = 0;
-    virtual void render(render_handle &mRenderHandle) = 0;
+    virtual void layout(layout_handle &pLayoutHandle) = 0;
+    virtual void render(render_handle &pRenderHandle) = 0;
     virtual void print(std::ostream &where) const = 0;
 
     void append_child(const std::shared_ptr<node> &pNode);
@@ -133,6 +138,10 @@ namespace ui
     std::unordered_map<std::string, std::string> mAttributes;
     ui::node_type mNodeType = node_type::element;
     std::string mNodeName;
+    // FIXME: If overflow and transform is implemented, this should point the
+    // offset parent, preferably using weak_ptr
+    void *mOffsetParent;
+    ui::rect mOffsetBorderRect;
 
     void _query_selector_all_impl(const ui::query_selector &pSelector, std::vector<std::shared_ptr<node>> &pList);
     void _update_parent(node *pNode);
@@ -141,8 +150,8 @@ namespace ui
   {
   public:
     element(const std::string &pTagName);
-    virtual void layout(layout_handle &mLayoutHandle);
-    virtual void render(render_handle &mRenderHandle);
+    virtual void layout(layout_handle &pLayoutHandle);
+    virtual void render(render_handle &pRenderHandle);
     virtual void print(std::ostream &pWhere) const;
 
     const std::string &tag_name() const;
@@ -156,8 +165,8 @@ namespace ui
   {
   public:
     text(const std::string &pData);
-    virtual void layout(layout_handle &mLayoutHandle);
-    virtual void render(render_handle &mRenderHandle);
+    virtual void layout(layout_handle &pLayoutHandle);
+    virtual void render(render_handle &pRenderHandle);
     virtual void print(std::ostream &pWhere) const;
 
     const std::string &data() const;

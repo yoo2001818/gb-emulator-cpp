@@ -150,12 +150,25 @@ ui::element::element(const std::string &pTagName) : mTagName(pTagName)
   this->mNodeName = pTagName;
 }
 
-void ui::element::layout(layout_handle &mLayoutHandle)
+void ui::element::layout(layout_handle &pLayoutHandle)
 {
 }
 
-void ui::element::render(render_handle &mRenderHandle)
+void ui::element::render(render_handle &pRenderHandle)
 {
+  if (this->mStyle.background)
+  {
+    // FIXME: Assuming RGB
+    auto color = this->mStyle.background->value.color;
+    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
+    SDL_Rect rect{this->mOffsetBorderRect.x, this->mOffsetBorderRect.y, this->mOffsetBorderRect.width, this->mOffsetBorderRect.height};
+    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
+  }
+  for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
+  {
+    (*iter)->render(pRenderHandle);
+  }
+  // TODO: Draw border
 }
 
 void ui::element::print(std::ostream &pWhere) const
@@ -203,11 +216,11 @@ ui::text::text(const std::string &pData) : mData(pData)
   this->mNodeName = "#text";
 }
 
-void ui::text::layout(layout_handle &mLayoutHandle)
+void ui::text::layout(layout_handle &pLayoutHandle)
 {
 }
 
-void ui::text::render(render_handle &mRenderHandle)
+void ui::text::render(render_handle &pRenderHandle)
 {
 }
 
