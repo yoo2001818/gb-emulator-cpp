@@ -144,6 +144,20 @@ void ui::node::_update_parent(node *pNode)
   }
 }
 
+int ui::node::_calculate_size(const ui::length_unit &pUnit)
+{
+  switch (pUnit.type)
+  {
+  case ui::length_unit_type::UNITLESS:
+    return 0;
+  case ui::length_unit_type::PX:
+    return pUnit.value;
+  // FIXME: Other units require getting the whole context
+  default:
+    return 0;
+  }
+}
+
 ui::element::element(const std::string &pTagName) : mTagName(pTagName)
 {
   this->mNodeType = node_type::element;

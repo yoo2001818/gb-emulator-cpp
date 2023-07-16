@@ -145,6 +145,7 @@ namespace ui
 
     void _query_selector_all_impl(const ui::query_selector &pSelector, std::vector<std::shared_ptr<node>> &pList);
     void _update_parent(node *pNode);
+    int _calculate_size(const ui::length_unit &pUnit);
   };
   class element : public node
   {
