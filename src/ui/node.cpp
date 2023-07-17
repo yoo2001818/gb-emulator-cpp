@@ -170,19 +170,81 @@ void ui::element::layout(layout_handle &pLayoutHandle)
 
 void ui::element::render(render_handle &pRenderHandle)
 {
+  auto borderTop = this->_calculate_size(this->mStyle.border.top.width);
+  auto borderLeft = this->_calculate_size(this->mStyle.border.left.width);
+  auto borderRight = this->_calculate_size(this->mStyle.border.right.width);
+  auto borderBottom = this->_calculate_size(this->mStyle.border.bottom.width);
   if (this->mStyle.background)
   {
     // FIXME: Assuming RGB
     auto color = this->mStyle.background->value.color;
     SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
-    SDL_Rect rect{this->mOffsetBorderRect.x, this->mOffsetBorderRect.y, this->mOffsetBorderRect.width, this->mOffsetBorderRect.height};
+    SDL_Rect rect{
+        this->mOffsetBorderRect.x + borderLeft,
+        this->mOffsetBorderRect.y + borderTop,
+        this->mOffsetBorderRect.width - borderLeft - borderRight,
+        this->mOffsetBorderRect.height - borderTop - borderBottom,
+    };
     SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
   }
   for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
   {
     (*iter)->render(pRenderHandle);
   }
-  // TODO: Draw border
+  // Draw border, for each edge and vertex
+  if (borderTop && borderLeft)
+  {
+    // TODO: This should draw triangle, but it doesn't
+    auto color = this->mStyle.border.top.color.value.color;
+    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
+    SDL_Rect rect{
+        this->mOffsetBorderRect.x,
+        this->mOffsetBorderRect.y,
+        borderLeft,
+        borderTop,
+    };
+    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
+  }
+  if (borderTop)
+  {
+    auto color = this->mStyle.border.top.color.value.color;
+    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
+    SDL_Rect rect{
+        this->mOffsetBorderRect.x + borderLeft,
+        this->mOffsetBorderRect.y,
+        this->mOffsetBorderRect.width - borderLeft - borderRight,
+        borderTop,
+    };
+    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
+  }
+  if (borderTop && borderRight)
+  {
+    // TODO: This should draw triangle, but it doesn't
+    auto color = this->mStyle.border.top.color.value.color;
+    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
+    SDL_Rect rect{
+        this->mOffsetBorderRect.x + this->mOffsetBorderRect.width - borderRight,
+        this->mOffsetBorderRect.y,
+        borderRight,
+        borderTop,
+    };
+    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
+  }
+  if (borderRight)
+  {
+  }
+  if (borderRight && borderBottom)
+  {
+  }
+  if (borderBottom)
+  {
+  }
+  if (borderBottom && borderLeft)
+  {
+  }
+  if (borderLeft)
+  {
+  }
 }
 
 void ui::element::print(std::ostream &pWhere) const
