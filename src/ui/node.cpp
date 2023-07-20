@@ -192,19 +192,6 @@ void ui::element::render(render_handle &pRenderHandle)
     (*iter)->render(pRenderHandle);
   }
   // Draw border, for each edge and vertex
-  if (borderTop && borderLeft)
-  {
-    // TODO: This should draw triangle, but it doesn't
-    auto color = this->mStyle.border.top.color.value.color;
-    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
-    SDL_Rect rect{
-        this->mOffsetBorderRect.x,
-        this->mOffsetBorderRect.y,
-        borderLeft,
-        borderTop,
-    };
-    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
-  }
   if (borderTop)
   {
     auto color = this->mStyle.border.top.color.value.color;
@@ -212,38 +199,44 @@ void ui::element::render(render_handle &pRenderHandle)
     SDL_Rect rect{
         this->mOffsetBorderRect.x + borderLeft,
         this->mOffsetBorderRect.y,
-        this->mOffsetBorderRect.width - borderLeft - borderRight,
-        borderTop,
-    };
-    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
-  }
-  if (borderTop && borderRight)
-  {
-    // TODO: This should draw triangle, but it doesn't
-    auto color = this->mStyle.border.top.color.value.color;
-    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
-    SDL_Rect rect{
-        this->mOffsetBorderRect.x + this->mOffsetBorderRect.width - borderRight,
-        this->mOffsetBorderRect.y,
-        borderRight,
+        this->mOffsetBorderRect.width - borderLeft,
         borderTop,
     };
     SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
   }
   if (borderRight)
   {
-  }
-  if (borderRight && borderBottom)
-  {
+    auto color = this->mStyle.border.top.color.value.color;
+    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
+    SDL_Rect rect{
+        this->mOffsetBorderRect.x + this->mOffsetBorderRect.width,
+        this->mOffsetBorderRect.y + borderTop,
+        borderRight,
+        this->mOffsetBorderRect.height - borderTop};
+    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
   }
   if (borderBottom)
   {
-  }
-  if (borderBottom && borderLeft)
-  {
+    auto color = this->mStyle.border.top.color.value.color;
+    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
+    SDL_Rect rect{
+        this->mOffsetBorderRect.x,
+        this->mOffsetBorderRect.y + this->mOffsetBorderRect.height - borderBottom,
+        this->mOffsetBorderRect.width - borderRight,
+        borderBottom,
+    };
+    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
   }
   if (borderLeft)
   {
+    auto color = this->mStyle.border.top.color.value.color;
+    SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
+    SDL_Rect rect{
+        this->mOffsetBorderRect.x,
+        this->mOffsetBorderRect.y,
+        borderLeft,
+        this->mOffsetBorderRect.height - borderBottom};
+    SDL_RenderFillRect(pRenderHandle.mRenderer, &rect);
   }
 }
 
