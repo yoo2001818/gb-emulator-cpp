@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
 #include "style.hpp"
+#include "../app/font_renderer.hpp"
 
 #ifndef __NODE_HPP__
 #define __NODE_HPP__
@@ -88,6 +89,7 @@ namespace ui
     SDL_Texture *mRootTexture;
     // TODO: Elements with overflow (or new layer) should make their own
     // texture and manage it
+    app::font_renderer *mFontRenderer;
   };
   class layout_handle
   {

@@ -291,6 +291,8 @@ void ui::text::layout(layout_handle &pLayoutHandle)
 
 void ui::text::render(render_handle &pRenderHandle)
 {
+  pRenderHandle.mFontRenderer->reset(this->mOffsetBorderRect.x, this->mOffsetBorderRect.y);
+  pRenderHandle.mFontRenderer->write(this->mData);
 }
 
 void ui::text::print(std::ostream &pWhere) const
