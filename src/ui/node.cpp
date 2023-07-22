@@ -166,6 +166,25 @@ ui::element::element(const std::string &pTagName) : mTagName(pTagName)
 
 void ui::element::layout(layout_handle &pLayoutHandle)
 {
+  // TODO: Resolve width
+  this->mOffsetBorderRect.x = pLayoutHandle.mOffsetLeft;
+  this->mOffsetBorderRect.y = pLayoutHandle.mOffsetTop;
+  this->mOffsetBorderRect.width = pLayoutHandle.mSuggestedWidth;
+  // Calculate border, padding
+  auto borderTop = this->_calculate_size(this->mStyle.border.top.width);
+  auto borderLeft = this->_calculate_size(this->mStyle.border.left.width);
+  auto borderRight = this->_calculate_size(this->mStyle.border.right.width);
+  auto borderBottom = this->_calculate_size(this->mStyle.border.bottom.width);
+  auto paddingTop = this->_calculate_size(this->mStyle.padding.top);
+  auto paddingLeft = this->_calculate_size(this->mStyle.padding.left);
+  auto paddingRight = this->_calculate_size(this->mStyle.padding.right);
+  auto paddingBottom = this->_calculate_size(this->mStyle.padding.bottom);
+  ui::rect bounds{
+      this->mOffsetBorderRect.x + borderLeft + paddingLeft,
+      this->mOffsetBorderRect.y + borderTop + paddingTop,
+      this->mOffsetBorderRect.width - borderLeft - paddingLeft - borderRight - paddingRight,
+      0,
+  };
 }
 
 void ui::element::render(render_handle &pRenderHandle)

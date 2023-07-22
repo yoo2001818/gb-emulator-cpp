@@ -94,7 +94,10 @@ namespace ui
   class layout_handle
   {
   public:
-    int dummy;
+    int mOffsetTop;
+    int mOffsetLeft;
+    int mSuggestedWidth;
+    int mSuggestedHeight;
   };
   class query_selector
   {
