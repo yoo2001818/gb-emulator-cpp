@@ -185,6 +185,20 @@ void ui::element::layout(layout_handle &pLayoutHandle)
       this->mOffsetBorderRect.width - borderLeft - paddingLeft - borderRight - paddingRight,
       0,
   };
+  // Start from the top, lay out each node
+  auto currentY = 0;
+  ui::layout_handle subHandle{
+      this->mOffsetBorderRect.y + paddingTop + currentY,
+      this->mOffsetBorderRect.x + paddingLeft,
+      pLayoutHandle.mSuggestedWidth,
+      0,
+  };
+  for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
+  {
+    (*iter)->layout(subHandle);
+    currentY += subHandle.mSuggestedHeight;
+  }
+  pLayoutHandle.mSuggestedHeight = currentY;
 }
 
 void ui::element::render(render_handle &pRenderHandle)
