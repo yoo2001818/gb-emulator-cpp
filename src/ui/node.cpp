@@ -187,18 +187,19 @@ void ui::element::layout(layout_handle &pLayoutHandle)
   };
   // Start from the top, lay out each node
   auto currentY = 0;
-  ui::layout_handle subHandle{
-      this->mOffsetBorderRect.y + paddingTop + currentY,
-      this->mOffsetBorderRect.x + paddingLeft,
-      pLayoutHandle.mSuggestedWidth,
-      0,
-  };
   for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
   {
+    ui::layout_handle subHandle{
+        this->mOffsetBorderRect.y + borderTop + paddingTop + currentY,
+        this->mOffsetBorderRect.x + borderLeft + paddingLeft,
+        this->mOffsetBorderRect.width - borderLeft - paddingLeft - paddingRight - borderRight,
+        0,
+    };
     (*iter)->layout(subHandle);
     currentY += subHandle.mSuggestedHeight;
   }
-  pLayoutHandle.mSuggestedHeight = currentY;
+  // Return the suggested height
+  pLayoutHandle.mSuggestedHeight = currentY + borderTop + paddingTop + paddingBottom + borderBottom;
 }
 
 void ui::element::render(render_handle &pRenderHandle)
@@ -320,6 +321,11 @@ ui::text::text(const std::string &pData) : mData(pData)
 
 void ui::text::layout(layout_handle &pLayoutHandle)
 {
+  this->mOffsetBorderRect.x = pLayoutHandle.mOffsetLeft;
+  this->mOffsetBorderRect.y = pLayoutHandle.mOffsetTop;
+  this->mOffsetBorderRect.width = 12 * this->mData.length();
+  this->mOffsetBorderRect.height = 24;
+  pLayoutHandle.mSuggestedHeight = 24;
 }
 
 void ui::text::render(render_handle &pRenderHandle)
