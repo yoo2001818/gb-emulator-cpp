@@ -189,6 +189,10 @@ void ui::element::layout(layout_handle &pLayoutHandle)
   auto currentY = 0;
   for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
   {
+    if (auto elem = dynamic_cast<ui::element *>((*iter).get()))
+    {
+      currentY += this->_calculate_size(elem->style().margin.top);
+    }
     ui::layout_handle subHandle{
         this->mOffsetBorderRect.y + borderTop + paddingTop + currentY,
         this->mOffsetBorderRect.x + borderLeft + paddingLeft,
@@ -197,9 +201,14 @@ void ui::element::layout(layout_handle &pLayoutHandle)
     };
     (*iter)->layout(subHandle);
     currentY += subHandle.mSuggestedHeight;
+    if (auto elem = dynamic_cast<ui::element *>((*iter).get()))
+    {
+      currentY += this->_calculate_size(elem->style().margin.bottom);
+    }
   }
   // Return the suggested height
   pLayoutHandle.mSuggestedHeight = currentY + borderTop + paddingTop + paddingBottom + borderBottom;
+  this->mOffsetBorderRect.height = pLayoutHandle.mSuggestedHeight;
 }
 
 void ui::element::render(render_handle &pRenderHandle)
@@ -243,7 +252,7 @@ void ui::element::render(render_handle &pRenderHandle)
     auto color = this->mStyle.border.top.color.value.color;
     SDL_SetRenderDrawColor(pRenderHandle.mRenderer, color >> 16, color >> 8, color, SDL_ALPHA_OPAQUE);
     SDL_Rect rect{
-        this->mOffsetBorderRect.x + this->mOffsetBorderRect.width,
+        this->mOffsetBorderRect.x + this->mOffsetBorderRect.width - borderRight,
         this->mOffsetBorderRect.y + borderTop,
         borderRight,
         this->mOffsetBorderRect.height - borderTop};

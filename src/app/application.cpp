@@ -5,6 +5,7 @@
 #include <SDL2/SDL_scancode.h>
 #include "application.hpp"
 #include "../cartridge/cartridge_raw.hpp"
+#include "../ui/node.hpp"
 
 // FIXME: Move it somewhere else
 std::vector<uint8_t> readRom(const std::string &pFilename)
@@ -163,6 +164,60 @@ void app::application::update()
   this->mFontRenderer->write(std::format("TIMA: {:02x} ", system.mTimer->mTima));
   this->mFontRenderer->write(std::format("TMA: {:02x} ", system.mTimer->mTma));
   this->mFontRenderer->write(std::format("TAC: {:02x}\n", system.mTimer->mTac));
+
+  // An attempt at rendering the node
+  {
+    int winWidth;
+    int winHeight;
+    SDL_GetWindowSize(this->mWindow, &winWidth, &winHeight);
+    auto rootEl = std::make_shared<ui::element>("DIV");
+    auto boxEl = std::make_shared<ui::element>("DIV");
+    auto textEl = std::make_shared<ui::text>("Hello,");
+    auto bEl = std::make_shared<ui::element>("B");
+    auto text2El = std::make_shared<ui::text>("world!");
+
+    rootEl->style().padding.top = {ui::length_unit_type::PX, 10};
+    rootEl->style().padding.left = {ui::length_unit_type::PX, 10};
+    rootEl->style().padding.right = {ui::length_unit_type::PX, 10};
+    rootEl->style().padding.bottom = {ui::length_unit_type::PX, 10};
+
+    boxEl->style().background = {ui::color_value::RGB, {0xFFAAAA}};
+    boxEl->style().padding.top = {ui::length_unit_type::PX, 10};
+    boxEl->style().padding.left = {ui::length_unit_type::PX, 10};
+    boxEl->style().padding.right = {ui::length_unit_type::PX, 10};
+    boxEl->style().padding.bottom = {ui::length_unit_type::PX, 10};
+    boxEl->style().border.top = {{ui::length_unit_type::PX, 3}, ui::border_style::SOLID, {ui::color_value::RGB, {0x00FF00}}};
+    boxEl->style().border.left = {{ui::length_unit_type::PX, 3}, ui::border_style::SOLID, {ui::color_value::RGB, {0x00FF00}}};
+    boxEl->style().border.right = {{ui::length_unit_type::PX, 3}, ui::border_style::SOLID, {ui::color_value::RGB, {0x00FF00}}};
+    boxEl->style().border.bottom = {{ui::length_unit_type::PX, 3}, ui::border_style::SOLID, {ui::color_value::RGB, {0x00FF00}}};
+
+    bEl->style().background = {ui::color_value::RGB, {0x0000FF}};
+    bEl->style().margin.top = {ui::length_unit_type::PX, 20};
+    bEl->style().padding.top = {ui::length_unit_type::PX, 5};
+    bEl->style().padding.left = {ui::length_unit_type::PX, 30};
+    bEl->style().padding.right = {ui::length_unit_type::PX, 30};
+    bEl->style().padding.bottom = {ui::length_unit_type::PX, 5};
+
+    rootEl->append_child(boxEl);
+    boxEl->append_child(textEl);
+    boxEl->append_child(bEl);
+    bEl->append_child(text2El);
+
+    ui::layout_handle layoutHandle{
+        0,
+        0,
+        winWidth,
+        0,
+    };
+    rootEl->layout(layoutHandle);
+
+    ui::render_handle renderHandle{
+        this->mRenderer,
+        nullptr,
+        &(*(this->mFontRenderer)),
+    };
+    rootEl->render(renderHandle);
+  }
 
   SDL_RenderPresent(this->mRenderer);
 }
