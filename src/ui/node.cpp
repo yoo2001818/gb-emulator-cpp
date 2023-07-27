@@ -166,49 +166,52 @@ ui::element::element(const std::string &pTagName) : mTagName(pTagName)
 
 void ui::element::layout(layout_handle &pLayoutHandle)
 {
-  // TODO: Resolve width
-  this->mOffsetBorderRect.x = pLayoutHandle.mOffsetLeft;
-  this->mOffsetBorderRect.y = pLayoutHandle.mOffsetTop;
-  this->mOffsetBorderRect.width = pLayoutHandle.mSuggestedWidth;
-  // Calculate border, padding
-  auto borderTop = this->_calculate_size(this->mStyle.border.top.width);
-  auto borderLeft = this->_calculate_size(this->mStyle.border.left.width);
-  auto borderRight = this->_calculate_size(this->mStyle.border.right.width);
-  auto borderBottom = this->_calculate_size(this->mStyle.border.bottom.width);
-  auto paddingTop = this->_calculate_size(this->mStyle.padding.top);
-  auto paddingLeft = this->_calculate_size(this->mStyle.padding.left);
-  auto paddingRight = this->_calculate_size(this->mStyle.padding.right);
-  auto paddingBottom = this->_calculate_size(this->mStyle.padding.bottom);
-  ui::rect bounds{
-      this->mOffsetBorderRect.x + borderLeft + paddingLeft,
-      this->mOffsetBorderRect.y + borderTop + paddingTop,
-      this->mOffsetBorderRect.width - borderLeft - paddingLeft - borderRight - paddingRight,
-      0,
-  };
-  // Start from the top, lay out each node
-  auto currentY = 0;
-  for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
+  if (this->mStyle.display == display_value::BLOCK)
   {
-    if (auto elem = dynamic_cast<ui::element *>((*iter).get()))
-    {
-      currentY += this->_calculate_size(elem->style().margin.top);
-    }
-    ui::layout_handle subHandle{
-        this->mOffsetBorderRect.y + borderTop + paddingTop + currentY,
+    // TODO: Resolve width
+    this->mOffsetBorderRect.x = pLayoutHandle.mOffsetLeft;
+    this->mOffsetBorderRect.y = pLayoutHandle.mOffsetTop;
+    this->mOffsetBorderRect.width = pLayoutHandle.mSuggestedWidth;
+    // Calculate border, padding
+    auto borderTop = this->_calculate_size(this->mStyle.border.top.width);
+    auto borderLeft = this->_calculate_size(this->mStyle.border.left.width);
+    auto borderRight = this->_calculate_size(this->mStyle.border.right.width);
+    auto borderBottom = this->_calculate_size(this->mStyle.border.bottom.width);
+    auto paddingTop = this->_calculate_size(this->mStyle.padding.top);
+    auto paddingLeft = this->_calculate_size(this->mStyle.padding.left);
+    auto paddingRight = this->_calculate_size(this->mStyle.padding.right);
+    auto paddingBottom = this->_calculate_size(this->mStyle.padding.bottom);
+    ui::rect bounds{
         this->mOffsetBorderRect.x + borderLeft + paddingLeft,
-        this->mOffsetBorderRect.width - borderLeft - paddingLeft - paddingRight - borderRight,
+        this->mOffsetBorderRect.y + borderTop + paddingTop,
+        this->mOffsetBorderRect.width - borderLeft - paddingLeft - borderRight - paddingRight,
         0,
     };
-    (*iter)->layout(subHandle);
-    currentY += subHandle.mSuggestedHeight;
-    if (auto elem = dynamic_cast<ui::element *>((*iter).get()))
+    // Start from the top, lay out each node
+    auto currentY = 0;
+    for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
     {
-      currentY += this->_calculate_size(elem->style().margin.bottom);
+      if (auto elem = dynamic_cast<ui::element *>((*iter).get()))
+      {
+        currentY += this->_calculate_size(elem->style().margin.top);
+      }
+      ui::layout_handle subHandle{
+          this->mOffsetBorderRect.y + borderTop + paddingTop + currentY,
+          this->mOffsetBorderRect.x + borderLeft + paddingLeft,
+          this->mOffsetBorderRect.width - borderLeft - paddingLeft - paddingRight - borderRight,
+          0,
+      };
+      (*iter)->layout(subHandle);
+      currentY += subHandle.mSuggestedHeight;
+      if (auto elem = dynamic_cast<ui::element *>((*iter).get()))
+      {
+        currentY += this->_calculate_size(elem->style().margin.bottom);
+      }
     }
+    // Return the suggested height
+    pLayoutHandle.mSuggestedHeight = currentY + borderTop + paddingTop + paddingBottom + borderBottom;
+    this->mOffsetBorderRect.height = pLayoutHandle.mSuggestedHeight;
   }
-  // Return the suggested height
-  pLayoutHandle.mSuggestedHeight = currentY + borderTop + paddingTop + paddingBottom + borderBottom;
-  this->mOffsetBorderRect.height = pLayoutHandle.mSuggestedHeight;
 }
 
 void ui::element::render(render_handle &pRenderHandle)

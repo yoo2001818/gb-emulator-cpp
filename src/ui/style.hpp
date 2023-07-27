@@ -156,7 +156,7 @@ namespace ui
     style_border_box border;
     // No image background is supported for now...
     std::optional<color_value> background;
-    display_value display;
+    display_value display = display_value::BLOCK;
     visibility_value visibility;
     position_value position;
     z_index_value zIndex;
