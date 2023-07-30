@@ -191,6 +191,8 @@ void ui::element::layout(layout_handle &pLayoutHandle)
     auto currentY = 0;
     for (auto iter = this->mChildren.begin(); iter != this->mChildren.end(); iter++)
     {
+      // If the node is inline or inline-block, we need to start a new formatting context here
+      // So it'd be best to make a formatting context to be a class
       if (auto elem = dynamic_cast<ui::element *>((*iter).get()))
       {
         currentY += this->_calculate_size(elem->style().margin.top);

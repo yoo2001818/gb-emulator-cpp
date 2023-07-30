@@ -190,6 +190,21 @@ namespace ui
   {
     std::shared_ptr<node> create_element(element_type pType);
   };
+
+  class formatting_context
+  {
+  public:
+  };
+
+  class block_formatting_context : public formatting_context
+  {
+  public:
+  };
+
+  class inline_formatting_context : public formatting_context
+  {
+  public:
+  };
 }
 
 std::ostream &operator<<(std::ostream &out, const ui::node &pNode);
