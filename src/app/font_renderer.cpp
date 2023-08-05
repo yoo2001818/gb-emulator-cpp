@@ -44,9 +44,9 @@ void app::font_renderer::write(char pChar)
   int tileY = pChar / 16;
   SDL_Rect srcRect{tileX * 24 + 6, tileY * 24, 12, 24};
   SDL_Rect dstRect{this->mCurrentX, this->mCurrentY, 12, 24};
-  // SDL_SetRenderDrawColor(this->mApp.mRenderer, 0, 0, 0, 255);
+  SDL_SetRenderDrawColor(this->mApp.mRenderer, 0, 0, 0, 255);
   SDL_SetTextureColorMod(this->mTexture, 255, 255, 255);
-  // SDL_RenderFillRect(this->mApp.mRenderer, &dstRect);
+  SDL_RenderFillRect(this->mApp.mRenderer, &dstRect);
   SDL_RenderCopy(this->mApp.mRenderer, this->mTexture, &srcRect, &dstRect);
   this->mCurrentX += 12;
 }

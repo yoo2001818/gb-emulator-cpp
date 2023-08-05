@@ -165,6 +165,7 @@ void app::application::update()
   this->mFontRenderer->write(std::format("TMA: {:02x} ", system.mTimer->mTma));
   this->mFontRenderer->write(std::format("TAC: {:02x}\n", system.mTimer->mTac));
 
+  /*
   // An attempt at rendering the node
   {
     int winWidth;
@@ -218,6 +219,7 @@ void app::application::update()
     };
     rootEl->render(renderHandle);
   }
+  */
 
   SDL_RenderPresent(this->mRenderer);
 }
