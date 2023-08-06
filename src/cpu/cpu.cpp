@@ -1,5 +1,7 @@
+#include <iostream>
 #include "cpu.hpp"
 #include "opcode.hpp"
+#include "disasm.hpp"
 
 cpu::cpu::cpu(shared_ptr<memory::memory> pMemory) : mMemory(pMemory){};
 void cpu::cpu::reset()
@@ -22,5 +24,6 @@ void cpu::cpu::step()
     return;
   }
   this->mIsInterruptsEnabled = this->mIsInterruptsEnabledNext;
+  std::cout << opcode::disasm_op(*this) << std::endl;
   opcode::exec_op(*this);
 }

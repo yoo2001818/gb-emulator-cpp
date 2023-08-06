@@ -14,12 +14,6 @@ namespace cpu
   {
     void exec_op(cpu &pCpu);
     void exec_op_cb(cpu &pCpu);
-    class op
-    {
-    public:
-      virtual void exec(cpu &pCpu) = 0;
-      virtual void print(std::ostream &pWhere) const = 0;
-    };
   };
 };
 

@@ -138,7 +138,7 @@ const prefix_opcodes = generateLUTRules(256, [
 
 const main_opcodes = generateLUTRules(256, [
   ['00000000', () => 'op::nop'],
-  ['00001000', () => 'op::add16_sp_n'], // ld16 (a16), SP
+  ['00001000', () => 'op::ld16_a16_sp'], // ld16 (a16), SP
   ['00010000', () => 'op::stop'],
   ['00011000', () => 'op::jr_r8'], // jr r8
   ['001cc000', ({ c }) => `op::jr_cond_r8<${conds[c]}>`], // jr c, r8

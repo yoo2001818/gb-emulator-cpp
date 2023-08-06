@@ -112,12 +112,43 @@ namespace cpu
       this->skip(1);
       return value;
     }
+    int read_nextr8()
+    {
+      int offset = this->read_next8();
+      if (offset & 0x80)
+      {
+        offset = -((~offset + 1) & 0xff);
+      }
+      return offset;
+    }
     uint16_t read_next16()
     {
       uint16_t value1 = this->mMemory->read(this->mRegister.pc);
       this->tick(1);
       uint16_t value2 = this->mMemory->read(this->mRegister.pc + 1);
       this->skip(2);
+      return value1 | (value2 << 8);
+    }
+    uint8_t readp_next8()
+    {
+      uint8_t value = this->mMemory->read(this->mRegister.pc);
+      this->skip(1);
+      return value;
+    }
+    int readp_nextr8()
+    {
+      int offset = this->readp_next8();
+      if (offset & 0x80)
+      {
+        offset = -((~offset + 1) & 0xff);
+      }
+      return offset;
+    }
+    uint16_t readp_next16()
+    {
+      uint16_t value1 = this->mMemory->read(this->mRegister.pc);
+      this->tick(1);
+      uint16_t value2 = this->mMemory->read(this->mRegister.pc + 1);
       return value1 | (value2 << 8);
     }
     void push16(uint16_t value)

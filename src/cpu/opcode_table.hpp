@@ -283,7 +283,7 @@ namespace cpu
       /* 05 */ [](cpu &pCpu) { op::alu_unary<alu::op_dec, reg::reg8_b>(pCpu); },
       /* 06 */ [](cpu &pCpu) { op::ld8_r_d8<reg::reg8_b>(pCpu); },
       /* 07 */ [](cpu &pCpu) { op::alu_unary<alu::op_rlc, reg::reg8_a>(pCpu); },
-      /* 08 */ [](cpu &pCpu) { op::add16_sp_n(pCpu); },
+      /* 08 */ [](cpu &pCpu) { op::ld16_a16_sp(pCpu); },
       /* 09 */ [](cpu &pCpu) { op::add16<reg::reg16_hl, reg::reg16_bc>(pCpu); },
       /* 0a */ [](cpu &pCpu) { op::ld16_a_r16<reg::reg16_bc>(pCpu); },
       /* 0b */ [](cpu &pCpu) { op::dec16<reg::reg16_bc>(pCpu); },
