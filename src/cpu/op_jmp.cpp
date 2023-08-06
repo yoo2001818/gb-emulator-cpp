@@ -1,25 +1,21 @@
-#include <iostream>
 #include "op_jmp.hpp"
+#include <iostream>
 
-void cpu::op::jp_a16(cpu &pCpu)
-{
+void cpu::op::jp_a16(cpu &pCpu) {
   auto addr = pCpu.read_next16();
   pCpu.mRegister.pc = addr;
   pCpu.tick(3);
 }
 
-void cpu::op::jp_hl(cpu &pCpu)
-{
+void cpu::op::jp_hl(cpu &pCpu) {
   auto addr = pCpu.mRegister.hl();
   pCpu.mRegister.pc = addr;
   pCpu.tick(1);
 }
 
-void cpu::op::jr_r8(cpu &pCpu)
-{
+void cpu::op::jr_r8(cpu &pCpu) {
   int offset = pCpu.read_next8();
-  if (offset & 0x80)
-  {
+  if (offset & 0x80) {
     offset = -((~offset + 1) & 0xff);
   }
   uint16_t addr = (pCpu.mRegister.pc + offset) & 0xffff;
@@ -27,8 +23,7 @@ void cpu::op::jr_r8(cpu &pCpu)
   pCpu.tick(3);
 }
 
-void cpu::op::call_a16(cpu &pCpu)
-{
+void cpu::op::call_a16(cpu &pCpu) {
   auto nextAddr = pCpu.read_next16();
   pCpu.tick(2);
   auto pushAddr = pCpu.mRegister.pc;
@@ -37,8 +32,7 @@ void cpu::op::call_a16(cpu &pCpu)
   pCpu.mRegister.pc = nextAddr;
 }
 
-void cpu::op::rst_nn(cpu &pCpu, uint16_t addr)
-{
+void cpu::op::rst_nn(cpu &pCpu, uint16_t addr) {
   pCpu.tick(1);
   auto pushAddr = pCpu.mRegister.pc;
   pCpu.push16(pushAddr);
@@ -46,15 +40,13 @@ void cpu::op::rst_nn(cpu &pCpu, uint16_t addr)
   pCpu.mRegister.pc = addr;
 }
 
-void cpu::op::ret(cpu &pCpu)
-{
+void cpu::op::ret(cpu &pCpu) {
   auto nextAddr = pCpu.pop16();
   pCpu.tick(3);
   pCpu.mRegister.pc = nextAddr;
 }
 
-void cpu::op::reti(cpu &pCpu)
-{
+void cpu::op::reti(cpu &pCpu) {
   auto nextAddr = pCpu.pop16();
   pCpu.tick(3);
   pCpu.mRegister.pc = nextAddr;

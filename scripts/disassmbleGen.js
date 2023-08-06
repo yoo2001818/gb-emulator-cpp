@@ -47,7 +47,9 @@ function generateLUTRules(size, patterns, nop) {
 
 function generateCode(name, table) {
   const code = [];
-  code.push(`static const array<std::string (*)(cpu &), 256> ${name} = {`);
+  code.push(
+    `static const array<std::function<std::string(cpu &)>, 256> ${name} = {`
+  );
   table.forEach((entry, index) => {
     const indexStr = index.toString(16).padStart(2, "0");
     code.push(`  /* ${indexStr} */ [](cpu &pCpu) { return ${entry}; },`);
@@ -85,10 +87,10 @@ const main_opcodes = generateLUTRules(
     ["00000000", () => '"nop"'],
     ["00001000", () => 'std::format("ld (${:04x}), sp", pCpu.readp_next16())'], // ld16 (a16), SP
     ["00010000", () => '"stop"'],
-    ["00011000", () => 'std::format("jr ${:x}", pCpu.readp_nextr8())'], // jr r8
+    ["00011000", () => 'std::format("jr ${:02x}", pCpu.readp_nextr8())'], // jr r8
     [
       "001cc000",
-      ({ c }) => `std::format("jr ${conds[c]}, \${:x}", pCpu.readp_next8())`,
+      ({ c }) => `std::format("jr ${conds[c]}, \${:02x}", pCpu.readp_next8())`,
     ], // jr c, r8
     // BC, DE, HL, SP
     [
@@ -106,7 +108,7 @@ const main_opcodes = generateLUTRules(
     ["00rrr101", ({ r }) => `"dec ${r8s[r]}"`], // dec r
     [
       "00rrr110",
-      ({ r }) => `std::format("ld ${r8s[r]} \${:x}", pCpu.readp_next8())`,
+      ({ r }) => `std::format("ld ${r8s[r]}, \${:02x}", pCpu.readp_next8())`,
     ], // ld r, d8
     ["00000111", () => '"rlca"'], // rlca
     ["00001111", () => '"rrca"'], // rrca
@@ -132,14 +134,14 @@ const main_opcodes = generateLUTRules(
     ["11000011", () => 'std::format("jp ${:04x}", pCpu.readp_next16())'], // jp a16
     ["11001001", () => '"ret"'],
     ["11011001", () => '"reti"'],
-    ["11001011", () => "disasm_op_cb"],
+    ["11001011", () => "disasm_op_cb(pCpu)"],
     ["11001101", () => 'std::format("call ${:04x}", pCpu.readp_next16())'], // call a16
     // BC, DE, HL, AF
     ["11DD0001", ({ D }) => `"pop ${r16s_3[D]}"`], // pop D
     ["11DD0101", ({ D }) => `"push ${r16s_3[D]}"`], // push D
     [
       "11ooo110",
-      ({ o }) => `std::format("${binary_ops[o]}, \${:x}", pCpu.readp_next8())`,
+      ({ o }) => `std::format("${binary_ops[o]} \${:02x}", pCpu.readp_next8())`,
     ], // (binary_op) a, d8
     ["11nnn111", ({ n }) => `"rst $${(n << 3).toString(16)}"`], // rst nn
     ["11100000", () => 'std::format("ldh (${:02x}), a", pCpu.readp_next8())'], // ldh (a8), a
@@ -161,5 +163,25 @@ const main_opcodes = generateLUTRules(
   '"nop"'
 );
 
+console.log(`
+#include <functional>
+#include <format>
+#include "cpu.hpp"
+#include "disasm.hpp"
+
+#ifndef __DISASM_TABLE_HPP__
+#define __DISASM_TABLE_HPP__
+
+namespace cpu
+{
+  namespace opcode
+  {
+`);
 console.log(generateCode("disasm_cb_table", prefix_opcodes));
 console.log(generateCode("disasm_main_table", main_opcodes));
+console.log(`
+  };
+};
+
+#endif // __DISASM_TABLE_HPP__
+`);
