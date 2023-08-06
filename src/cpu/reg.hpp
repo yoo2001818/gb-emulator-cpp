@@ -81,11 +81,9 @@ public:
 class reg8_indir_hl : reg8 {
 public:
   static const int clocks = 1;
-  static uint8_t read(cpu &pCpu) {
-    return pCpu.mMemory->read(pCpu.mRegister.hl());
-  };
+  static uint8_t read(cpu &pCpu) { return pCpu.read_mem(pCpu.mRegister.hl()); };
   static void write(cpu &pCpu, const uint8_t pValue) {
-    pCpu.mMemory->write(pCpu.mRegister.hl(), pValue);
+    pCpu.write_mem(pCpu.mRegister.hl(), pValue);
   };
 };
 
