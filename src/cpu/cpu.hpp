@@ -185,6 +185,8 @@ public:
     this->mRegister.sp = (this->mRegister.sp + 2) & 0xffff;
     return value;
   }
+
+  std::string debug_state();
 };
 }; // namespace cpu
 

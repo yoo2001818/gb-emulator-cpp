@@ -1,6 +1,7 @@
 #include "cpu.hpp"
 #include "disasm.hpp"
 #include "opcode.hpp"
+#include <format>
 
 cpu::cpu::cpu(shared_ptr<memory::memory> pMemory) : mMemory(pMemory){};
 void cpu::cpu::reset() {
@@ -19,6 +20,25 @@ void cpu::cpu::step() {
     this->tick(1);
     return;
   }
+  auto pc = this->mRegister.pc;
+  if (this->mIsBreakpointsEnabled) {
+    auto matches =
+        std::any_of(this->mBreakpoints.begin(), this->mBreakpoints.end(),
+                    [pc](const breakpoint &v) {
+                      return v.type == breakpoint::READ && v.addr == pc;
+                    });
+    if (matches) {
+      this->mIsTrapped = true;
+      return;
+    }
+  }
   this->mIsInterruptsEnabled = this->mIsInterruptsEnabledNext;
   opcode::exec_op(*this);
+}
+
+std::string cpu::cpu::debug_state() {
+  return std::format(
+      "PC: {:04x} AF: {:04x} BC: {:04x} DE: {:04x} HL: {:04x} SP: {:04x}",
+      this->mRegister.pc, this->mRegister.af(), this->mRegister.bc(),
+      this->mRegister.de(), this->mRegister.hl(), this->mRegister.sp);
 }
