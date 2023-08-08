@@ -21,6 +21,7 @@ public:
   std::shared_ptr<font_renderer> mFontRenderer;
   std::shared_ptr<gb_system::system> mSystem;
   bool mIsTrapAcknowledged;
+  bool mIsStepping;
 };
 } // namespace app
 

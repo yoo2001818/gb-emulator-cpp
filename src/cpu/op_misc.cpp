@@ -86,7 +86,6 @@ void cpu::op::stop(cpu &pCpu) {
 void cpu::op::di(cpu &pCpu) {
   pCpu.mIsInterruptsEnabled = false;
   pCpu.mIsInterruptsEnabledNext = false;
-  pCpu.skip(1);
   pCpu.tick(1);
 }
 

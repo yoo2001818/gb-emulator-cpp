@@ -65,7 +65,7 @@ app::application::application() {
   this->mPpuTexture = std::make_unique<ppu_texture>(*this);
   this->mFontRenderer = std::make_shared<font_renderer>(*this);
 
-  auto rom = readRom("res/drmario.gb");
+  auto rom = readRom("res/01.gb");
 
   this->mSystem =
       std::make_shared<gb_system::system>(gb_system::system_type::DMG);
@@ -73,11 +73,26 @@ app::application::application() {
       std::make_shared<cartridge::cartridge_raw>(rom, *(this->mSystem));
   this->mSystem->reset();
 
-  this->mSystem->mCpu->mBreakpoints.push_back({cpu::breakpoint::WRITE, 0x9864});
-  this->mSystem->mCpu->mIsBreakpointsEnabled = true;
+  // this->mSystem->mCpu->mBreakpoints.push_back({cpu::breakpoint::WRITE,
+  // 0x9864}); this->mSystem->mCpu->mIsBreakpointsEnabled = true;
 }
 
 void app::application::handle_event(SDL_Event &event) {
+  switch (event.type) {
+  case SDL_KEYDOWN:
+    switch (event.key.keysym.scancode) {
+    case SDL_SCANCODE_W:
+      this->mIsTrapAcknowledged = false;
+      this->mSystem->mCpu->mIsTrapped = false;
+      break;
+    case SDL_SCANCODE_E:
+      this->mIsStepping = true;
+      break;
+    default:
+      break;
+    }
+    break;
+  }
   switch (event.type) {
   case SDL_KEYDOWN:
   case SDL_KEYUP: {
@@ -125,20 +140,33 @@ void app::application::update() {
 
   auto &system = *(this->mSystem);
 
+  if (this->mIsStepping) {
+    this->mIsTrapAcknowledged = false;
+    system.mCpu->mIsTrapped = false;
+  }
+
   // Run 1 frame
   int stopClock = system.mCpu->mClocks + 17556;
   while (system.mCpu->mClocks < stopClock) {
-    if (system.mCpu->mIsTrapped)
+    if (system.mCpu->mIsTrapped) {
       break;
+    }
     system.mInterrupter->step();
     if (!system.mCpu->mIsRunning) {
       system.mCpu->mClocks += 1;
       system.tick(1);
     }
+    if (this->mIsStepping) {
+      system.mCpu->mIsTrapped = true;
+      this->mIsStepping = false;
+      break;
+    }
   }
   if (system.mCpu->mIsTrapped && !this->mIsTrapAcknowledged) {
     this->mIsTrapAcknowledged = true;
-    std::cout << cpu::opcode::disasm_op(*(system.mCpu)) << std::endl;
+    std::cout << system.mCpu->debug_state()
+              << std::format("; ${:04x}: ", system.mCpu->mRegister.pc)
+              << cpu::opcode::disasm_op(*(system.mCpu)) << std::endl;
   }
 
   // Update frame buffer
@@ -147,22 +175,9 @@ void app::application::update() {
 
   this->mFontRenderer->reset();
   this->mFontRenderer->write(std::format("CLK: {}\n", system.mCpu->mClocks));
+  this->mFontRenderer->write(system.mCpu->debug_state());
   this->mFontRenderer->write(
-      std::format("PC: {:04x} ", system.mCpu->mRegister.pc));
-  this->mFontRenderer->write(
-      std::format("A: {:02x} ", system.mCpu->mRegister.a));
-  this->mFontRenderer->write(
-      std::format("BC: {:04x} ", system.mCpu->mRegister.bc()));
-  this->mFontRenderer->write(
-      std::format("DE: {:04x} ", system.mCpu->mRegister.de()));
-  this->mFontRenderer->write(
-      std::format("F: {:02x} ", system.mCpu->mRegister.f));
-  this->mFontRenderer->write(
-      std::format("HL: {:04x} ", system.mCpu->mRegister.hl()));
-  this->mFontRenderer->write(
-      std::format("SP: {:04x} ", system.mCpu->mRegister.sp));
-  this->mFontRenderer->write(
-      std::format("IME: {}\n", system.mCpu->mIsInterruptsEnabled));
+      std::format("\nIME: {}\n", system.mCpu->mIsInterruptsEnabled));
   this->mFontRenderer->write(
       std::format("IE: {:02x} ", system.mInterrupter->mInterruptsEnable));
   this->mFontRenderer->write(

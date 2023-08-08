@@ -38,7 +38,7 @@ void cpu::cpu::step() {
 
 std::string cpu::cpu::debug_state() {
   return std::format(
-      "PC: {:04x} AF: {:04x} BC: {:04x} DE: {:04x} HL: {:04x} SP: {:04x}",
-      this->mRegister.pc, this->mRegister.af(), this->mRegister.bc(),
-      this->mRegister.de(), this->mRegister.hl(), this->mRegister.sp);
+      "AF: {:04x} BC: {:04x} DE: {:04x} HL: {:04x} SP: {:04x} PC: {:04x}",
+      this->mRegister.af(), this->mRegister.bc(), this->mRegister.de(),
+      this->mRegister.hl(), this->mRegister.sp, this->mRegister.pc);
 }
