@@ -1,25 +1,21 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <memory>
+#include "../src/app/application.hpp"
+#include "../src/cartridge/cartridge_raw.hpp"
+#include "../src/gb_system/system.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
-#include "../src/gb_system/system.hpp"
-#include "../src/cartridge/cartridge_raw.hpp"
-#include "../src/app/application.hpp"
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <vector>
 
-int main()
-{
+int main_app() {
   {
     app::application app;
 
-    while (true)
-    {
+    while (true) {
       SDL_Event event;
-      if (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT)
-        {
+      if (SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT) {
           break;
         }
         app.handle_event(event);
@@ -33,8 +29,7 @@ int main()
       int32_t deltaTime = static_cast<int32_t>(endTime - beginTime);
       int32_t sleepTime = 12 - deltaTime;
 
-      if (sleepTime > 0)
-      {
+      if (sleepTime > 0) {
         SDL_Delay(sleepTime);
       }
     }
