@@ -56,7 +56,7 @@ void cpu::op::ld16_a16_sp(cpu &pCpu) {
   auto value = pCpu.mRegister.sp;
   // FIXME: Breakpoint
   pCpu.mMemory->write(addr, value & 0xff);
-  pCpu.mMemory->write(addr, (value >> 8) & 0xff);
+  pCpu.mMemory->write(addr + 1, (value >> 8) & 0xff);
   pCpu.tick(4);
 }
 

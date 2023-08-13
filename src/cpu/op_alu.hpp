@@ -183,9 +183,7 @@ class op_swap : op_unary {
 public:
   static uint8_t exec(cpu &pCpu, const uint8_t pValue) {
     uint8_t result = ((pValue & 0xf) << 4) | ((pValue >> 4) & 0xf);
-    uint8_t flags = 0;
-    if (result == 0)
-      flags |= reg::FLAG_Z;
+    pCpu.mRegister.f = 0;
     return result;
   }
 };
@@ -363,7 +361,7 @@ void alu_unary_shift(cpu &pCpu) {
   auto result = Op::exec(pCpu, n);
   R::write(pCpu, result);
 
-  uint8_t flags = pCpu.mRegister.f | ~reg::FLAG_Z;
+  uint8_t flags = pCpu.mRegister.f & ~reg::FLAG_Z;
   if (result == 0)
     flags |= reg::FLAG_Z;
   pCpu.mRegister.f = flags;
@@ -379,7 +377,7 @@ void alu_unary_read(cpu &pCpu) {
   auto n = R::read(pCpu);
   auto result = Op::exec(pCpu, n);
 
-  uint8_t flags = pCpu.mRegister.f | ~reg::FLAG_Z;
+  uint8_t flags = pCpu.mRegister.f & ~reg::FLAG_Z;
   if (result == 0)
     flags |= reg::FLAG_Z;
   pCpu.mRegister.f = flags;

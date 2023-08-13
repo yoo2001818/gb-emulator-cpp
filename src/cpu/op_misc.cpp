@@ -10,9 +10,9 @@ void cpu::op::add16_sp_n(cpu &pCpu) {
   }
   int result = n1 + n2;
   uint8_t flags = 0;
-  if (((n1 & 0xfff) + (n2 & 0xfff)) & 0x1000)
+  if (((n1 ^ n2 ^ (result & 0xffff)) & 0x10) == 0x10)
     flags |= reg::FLAG_H;
-  if (result & 0x10000)
+  if (((n1 ^ n2 ^ (result & 0xffff)) & 0x100) == 0x100)
     flags |= reg::FLAG_C;
   pCpu.mRegister.f = flags;
   reg::reg16_sp::write(pCpu, result);
@@ -48,7 +48,7 @@ void cpu::op::daa(cpu &pCpu) {
 void cpu::op::cpl(cpu &pCpu) {
   uint8_t result = reg::reg8_a::read(pCpu) ^ 0xff;
   reg::reg8_a::write(pCpu, result);
-  uint8_t flags = pCpu.mRegister.f;
+  uint8_t flags = pCpu.mRegister.f & (reg::FLAG_C | reg::FLAG_Z);
   flags |= reg::FLAG_N;
   flags |= reg::FLAG_H;
   pCpu.mRegister.f = flags;
@@ -58,7 +58,7 @@ void cpu::op::cpl(cpu &pCpu) {
 void cpu::op::ccf(cpu &pCpu) {
   uint8_t flags = 0;
   flags |= pCpu.mRegister.f & reg::FLAG_Z;
-  flags |= (~pCpu.mRegister.c) & reg::FLAG_C;
+  flags |= (~pCpu.mRegister.f) & reg::FLAG_C;
   pCpu.mRegister.f = flags;
   pCpu.tick(1);
 }

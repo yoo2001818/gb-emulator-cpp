@@ -65,7 +65,7 @@ app::application::application() {
   this->mPpuTexture = std::make_unique<ppu_texture>(*this);
   this->mFontRenderer = std::make_shared<font_renderer>(*this);
 
-  auto rom = readRom("res/01.gb");
+  auto rom = readRom("res/tetris.gb");
 
   this->mSystem =
       std::make_shared<gb_system::system>(gb_system::system_type::DMG);

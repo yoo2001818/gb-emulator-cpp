@@ -45,8 +45,8 @@ void jp_cond_a16(cpu &pCpu) {
   if (C::test(pCpu)) {
     jp_a16(pCpu);
   } else {
-    pCpu.skip(2);
-    pCpu.tick(3);
+    pCpu.read_next16();
+    pCpu.tick(2);
   }
 }
 
@@ -59,7 +59,7 @@ void jr_cond_r8(cpu &pCpu) {
   if (C::test(pCpu)) {
     jr_r8(pCpu);
   } else {
-    pCpu.skip(1);
+    pCpu.read_next8();
     pCpu.tick(2);
   }
 }
@@ -72,8 +72,8 @@ void call_cond_a16(cpu &pCpu) {
   if (C::test(pCpu)) {
     call_a16(pCpu);
   } else {
-    pCpu.skip(2);
-    pCpu.tick(3);
+    pCpu.read_next16();
+    pCpu.tick(2);
   }
 }
 

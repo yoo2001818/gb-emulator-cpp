@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-int main_app() {
+int main() {
   {
     app::application app;
 
