@@ -3,8 +3,7 @@
 void cpu::op::ld8_a_a16(cpu &pCpu) {
   uint16_t addr = pCpu.read_next16();
   pCpu.tick(1);
-  // FIXME: Breakpoint
-  uint8_t value = pCpu.mMemory->read(addr);
+  uint8_t value = pCpu.read_mem(addr);
   reg::reg8_a::write(pCpu, value);
   pCpu.tick(2);
 }
@@ -13,15 +12,13 @@ void cpu::op::ld8_a16_a(cpu &pCpu) {
   uint16_t addr = pCpu.read_next16();
   pCpu.tick(1);
   uint8_t value = reg::reg8_a::read(pCpu);
-  // FIXME: Breakpoint
-  pCpu.mMemory->write(addr, value);
+  pCpu.write_mem(addr, value);
   pCpu.tick(2);
 }
 
 void cpu::op::ld8_a_c(cpu &pCpu) {
   uint16_t addr = (0xff00 + reg::reg8_c::read(pCpu)) & 0xffff;
-  // FIXME: Breakpoint
-  uint8_t value = pCpu.mMemory->read(addr);
+  uint8_t value = pCpu.read_mem(addr);
   reg::reg8_a::write(pCpu, value);
   pCpu.tick(2);
 }
@@ -29,7 +26,7 @@ void cpu::op::ld8_a_c(cpu &pCpu) {
 void cpu::op::ld8_c_a(cpu &pCpu) {
   uint16_t addr = (0xff00 + reg::reg8_c::read(pCpu)) & 0xffff;
   uint8_t value = reg::reg8_a::read(pCpu);
-  pCpu.mMemory->write(addr, value);
+  pCpu.write_mem(addr, value);
   pCpu.tick(2);
 }
 
@@ -37,16 +34,14 @@ void cpu::op::ldh8_a8_a(cpu &pCpu) {
   uint16_t addr = (0xff00 + pCpu.read_next8()) & 0xffff;
   pCpu.tick(1);
   uint8_t value = reg::reg8_a::read(pCpu);
-  // FIXME: Breakpoint
-  pCpu.mMemory->write(addr, value);
+  pCpu.write_mem(addr, value);
   pCpu.tick(2);
 }
 
 void cpu::op::ldh8_a_a8(cpu &pCpu) {
   uint16_t addr = (0xff00 + pCpu.read_next8()) & 0xffff;
   pCpu.tick(1);
-  // FIXME: Breakpoint
-  uint8_t value = pCpu.mMemory->read(addr);
+  uint8_t value = pCpu.read_mem(addr);
   pCpu.tick(2);
   reg::reg8_a::write(pCpu, value);
 }
@@ -54,9 +49,8 @@ void cpu::op::ldh8_a_a8(cpu &pCpu) {
 void cpu::op::ld16_a16_sp(cpu &pCpu) {
   auto addr = pCpu.read_next16();
   auto value = pCpu.mRegister.sp;
-  // FIXME: Breakpoint
-  pCpu.mMemory->write(addr, value & 0xff);
-  pCpu.mMemory->write(addr + 1, (value >> 8) & 0xff);
+  pCpu.write_mem(addr, value & 0xff);
+  pCpu.write_mem(addr + 1, (value >> 8) & 0xff);
   pCpu.tick(4);
 }
 
