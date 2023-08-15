@@ -8,9 +8,13 @@
 #include <memory>
 #include <vector>
 
-int main() {
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
+    std::cout << "Usage: " << argv[0] << " <rom>" << std::endl;
+    return 1;
+  }
   {
-    app::application app;
+    app::application app(argv[1]);
 
     while (true) {
       SDL_Event event;
@@ -27,7 +31,7 @@ int main() {
 
       uint64_t endTime = SDL_GetTicks64();
       int32_t deltaTime = static_cast<int32_t>(endTime - beginTime);
-      int32_t sleepTime = 12 - deltaTime;
+      int32_t sleepTime = 16 - deltaTime;
 
       if (sleepTime > 0) {
         SDL_Delay(sleepTime);

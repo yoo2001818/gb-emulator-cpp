@@ -43,13 +43,13 @@ uint32_t convertColor(uint16_t value) {
   return (red << 24) | (green << 16) | (blue << 8) | 0xff;
 }
 
-app::application::application() {
+app::application::application(const std::string &pRomPath) {
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0) {
     throw std::runtime_error(SDL_GetError());
   }
 
   this->mWindow = SDL_CreateWindow("gb-emulator-cpp", SDL_WINDOWPOS_CENTERED,
-                                   SDL_WINDOWPOS_CENTERED, 1024, 768,
+                                   SDL_WINDOWPOS_CENTERED, 160 * 4, 144 * 4,
                                    SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
   if (this->mWindow == nullptr) {
     throw std::runtime_error(SDL_GetError());
@@ -65,12 +65,12 @@ app::application::application() {
   this->mPpuTexture = std::make_unique<ppu_texture>(*this);
   this->mFontRenderer = std::make_shared<font_renderer>(*this);
 
-  auto rom = readRom("res/tetris.gb");
+  auto rom = readRom(pRomPath);
+  cartridge::cartridge_info rom_info(rom);
 
   this->mSystem =
       std::make_shared<gb_system::system>(gb_system::system_type::DMG);
-  this->mSystem->mCartridge =
-      std::make_shared<cartridge::cartridge_raw>(rom, *(this->mSystem));
+  this->mSystem->mCartridge = rom_info.make_cartridge(rom, *(this->mSystem));
   this->mSystem->reset();
 
   // this->mSystem->mCpu->mBreakpoints.push_back({cpu::breakpoint::WRITE,
@@ -88,6 +88,11 @@ void app::application::handle_event(SDL_Event &event) {
     case SDL_SCANCODE_E:
       this->mIsStepping = true;
       break;
+    case SDL_SCANCODE_R:
+      this->mSystem->reset();
+      break;
+    case SDL_SCANCODE_T:
+      this->mIsStatsShown = !this->mIsStatsShown;
     default:
       break;
     }
@@ -173,25 +178,31 @@ void app::application::update() {
   this->mPpuTexture->update();
   SDL_RenderCopy(this->mRenderer, this->mPpuTexture->mTexture, NULL, NULL);
 
-  this->mFontRenderer->reset();
-  this->mFontRenderer->write(std::format("CLK: {}\n", system.mCpu->mClocks));
-  this->mFontRenderer->write(system.mCpu->debug_state());
-  this->mFontRenderer->write(
-      std::format("\nIME: {}\n", system.mCpu->mIsInterruptsEnabled));
-  this->mFontRenderer->write(
-      std::format("IE: {:02x} ", system.mInterrupter->mInterruptsEnable));
-  this->mFontRenderer->write(
-      std::format("IF: {:02x}\n", system.mInterrupter->mInterruptsFlag));
-  this->mFontRenderer->write(std::format("LCDC: {:02x} ", system.mPpu->mLcdc));
-  this->mFontRenderer->write(std::format("STAT: {:02x} ", system.mPpu->mStat));
-  this->mFontRenderer->write(std::format("LY: {:02x} ", system.mPpu->mLy));
-  this->mFontRenderer->write(std::format("LYC: {:02x}\n", system.mPpu->mLyc));
-  this->mFontRenderer->write(
-      std::format("DIV: {:02x} ", (system.mTimer->mClocks / 256) & 0xff));
-  this->mFontRenderer->write(
-      std::format("TIMA: {:02x} ", system.mTimer->mTima));
-  this->mFontRenderer->write(std::format("TMA: {:02x} ", system.mTimer->mTma));
-  this->mFontRenderer->write(std::format("TAC: {:02x}\n", system.mTimer->mTac));
+  if (this->mIsStatsShown) {
+    this->mFontRenderer->reset();
+    this->mFontRenderer->write(std::format("CLK: {}\n", system.mCpu->mClocks));
+    this->mFontRenderer->write(system.mCpu->debug_state());
+    this->mFontRenderer->write(
+        std::format("\nIME: {}\n", system.mCpu->mIsInterruptsEnabled));
+    this->mFontRenderer->write(
+        std::format("IE: {:02x} ", system.mInterrupter->mInterruptsEnable));
+    this->mFontRenderer->write(
+        std::format("IF: {:02x}\n", system.mInterrupter->mInterruptsFlag));
+    this->mFontRenderer->write(
+        std::format("LCDC: {:02x} ", system.mPpu->mLcdc));
+    this->mFontRenderer->write(
+        std::format("STAT: {:02x} ", system.mPpu->mStat));
+    this->mFontRenderer->write(std::format("LY: {:02x} ", system.mPpu->mLy));
+    this->mFontRenderer->write(std::format("LYC: {:02x}\n", system.mPpu->mLyc));
+    this->mFontRenderer->write(
+        std::format("DIV: {:02x} ", (system.mTimer->mClocks / 256) & 0xff));
+    this->mFontRenderer->write(
+        std::format("TIMA: {:02x} ", system.mTimer->mTima));
+    this->mFontRenderer->write(
+        std::format("TMA: {:02x} ", system.mTimer->mTma));
+    this->mFontRenderer->write(
+        std::format("TAC: {:02x}\n", system.mTimer->mTac));
+  }
 
   /*
   // An attempt at rendering the node
