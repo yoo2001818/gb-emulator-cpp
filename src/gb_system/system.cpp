@@ -1,7 +1,6 @@
 #include "system.hpp"
 
-gb_system::system::system(system_type pSystemType) : mSystemType(pSystemType)
-{
+gb_system::system::system(system_type pSystemType) : mSystemType(pSystemType) {
   this->mMemoryBus = make_shared<memory::memory_bus>();
   this->mIoBus = make_shared<memory::io_bus>();
   this->mCpu = make_shared<cpu::cpu>(this->mMemoryBus);
@@ -16,9 +15,14 @@ gb_system::system::system(system_type pSystemType) : mSystemType(pSystemType)
   this->reset();
 }
 
-void gb_system::system::reset()
-{
-  this->mCpu->reset();
+void gb_system::system::reset() {
+  if (this->mSystemType == system_type::CGB) {
+    this->mCpu->reset(
+        {0x11, 0x13, 0, 0xd8, 0xb0, 0x01, 0x4d, 0, 0x100, 0xfffe});
+  } else {
+    this->mCpu->reset(
+        {0x01, 0x13, 0, 0xd8, 0xb0, 0x01, 0x4d, 0, 0x100, 0xfffe});
+  }
   this->mInterrupter->reset();
   if (this->mCartridge)
     this->mCartridge->reset();
@@ -31,8 +35,7 @@ void gb_system::system::reset()
   this->mDma->reset();
   this->mGamepad->reset();
 
-  this->mCpu->set_on_tick([&](int pTicks)
-                          { this->tick(pTicks); });
+  this->mCpu->set_on_tick([&](int pTicks) { this->tick(pTicks); });
   this->mMemoryBus->register_entry(0xff, 1, this->mIoBus);
   this->mInterrupter->register_system();
   if (this->mCartridge)
@@ -45,10 +48,8 @@ void gb_system::system::reset()
   this->mGamepad->register_system();
 }
 
-void gb_system::system::tick(int pTicks)
-{
-  for (auto i = 0; i < pTicks; i += 1)
-  {
+void gb_system::system::tick(int pTicks) {
+  for (auto i = 0; i < pTicks; i += 1) {
     this->mTimer->tick();
     this->mPpu->tick();
     this->mDma->tick();

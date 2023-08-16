@@ -68,8 +68,9 @@ app::application::application(const std::string &pRomPath) {
   auto rom = readRom(pRomPath);
   cartridge::cartridge_info rom_info(rom);
 
-  this->mSystem =
-      std::make_shared<gb_system::system>(gb_system::system_type::DMG);
+  this->mSystem = std::make_shared<gb_system::system>(
+      rom_info.supportsCGB ? gb_system::system_type::CGB
+                           : gb_system::system_type::DMG);
   this->mSystem->mCartridge = rom_info.make_cartridge(rom, *(this->mSystem));
   this->mSystem->reset();
 

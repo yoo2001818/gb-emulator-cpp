@@ -80,7 +80,7 @@ public:
   bool mIsTrapped = false;
 
   cpu(shared_ptr<memory::memory> pMemory);
-  void reset();
+  void reset(const cpu_register &pRegister);
   void step();
   void jump(uint16_t pAddr) { this->mRegister.pc = pAddr; }
   void skip(int16_t bytes) { this->mRegister.pc = this->mRegister.pc + bytes; }
