@@ -3,6 +3,7 @@
 #include "../memory/pointer_memory.hpp"
 #include "ppu_render.hpp"
 #include "system.hpp"
+#include <iostream>
 
 static const int IO_LCDC = 0x40;
 static const int IO_STAT = 0x41;

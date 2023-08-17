@@ -75,7 +75,7 @@ app::application::application(const std::string &pRomPath) {
   this->mSystem->reset();
 
   // this->mSystem->mCpu->mBreakpoints.push_back({cpu::breakpoint::WRITE,
-  // 0x9864}); this->mSystem->mCpu->mIsBreakpointsEnabled = true;
+  // 0x8000}); this->mSystem->mCpu->mIsBreakpointsEnabled = true;
 }
 
 void app::application::handle_event(SDL_Event &event) {

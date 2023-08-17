@@ -85,6 +85,8 @@ void ppu_render_line_bg(ppu &pPpu, std::array<uint8_t, LCD_WIDTH> &pLine,
       }
       px -= 1;
       currentX += 1;
+      if (currentX >= LCD_WIDTH)
+        break;
     }
   } while (currentX < LCD_WIDTH);
 }
@@ -121,9 +123,9 @@ void ppu_render_line_sprite(ppu &pPpu, std::array<uint8_t, LCD_WIDTH> &pLine) {
     int py = dstY - spriteY;
     if (py < 0 || py >= spriteHeight)
       continue;
-    uint8_t spriteX = pPpu.mOam[addr + 1] - 8;
-    uint8_t tileId = pPpu.mOam[addr + 2];
-    uint8_t attributes = pPpu.mOam[addr + 3];
+    int spriteX = pPpu.mOam[addr + 1] - 8;
+    int tileId = pPpu.mOam[addr + 2];
+    int attributes = pPpu.mOam[addr + 3];
 
     int obp = (attributes & 16) ? pPpu.mObp1 : pPpu.mObp0;
     bool flipX = attributes & 32;
@@ -138,8 +140,8 @@ void ppu_render_line_sprite(ppu &pPpu, std::array<uint8_t, LCD_WIDTH> &pLine) {
       tileId = tileId & 0xfe;
 
     int tileAddr = tileBank * 0x2000 + tileId * 16 + py * 2;
-    uint8_t tileLine1 = pPpu.mVram[tileAddr];
-    uint8_t tileLine2 = pPpu.mVram[tileAddr + 1];
+    int tileLine1 = pPpu.mVram[tileAddr];
+    int tileLine2 = pPpu.mVram[tileAddr + 1];
 
     for (int x = 0; x < 8; x += 1) {
       int px = flipX ? x : (7 - x);
