@@ -69,7 +69,7 @@ app::application::application(const std::string &pRomPath) {
   audioSpec.freq = 32768;
   audioSpec.format = AUDIO_S16;
   audioSpec.channels = 2;
-  audioSpec.samples = 1024;
+  audioSpec.samples = 2048;
   audioSpec.callback = nullptr;
   audioSpec.userdata = nullptr;
 
@@ -226,7 +226,7 @@ void app::application::update() {
 
   // Submit audio
   auto &buf = this->mSystem->mApu->finalize();
-  SDL_QueueAudio(this->mAudioDeviceId, buf.data(), buf.size());
+  SDL_QueueAudio(this->mAudioDeviceId, buf.data(), buf.size() * 2);
 
   /*
   // An attempt at rendering the node

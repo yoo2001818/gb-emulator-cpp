@@ -552,6 +552,21 @@ void gb_system::apu::apu::tick() {
 }
 std::array<int16_t, gb_system::apu::apu::SAMPLE_SIZE * 2> &
 gb_system::apu::apu::finalize() {
+  while (this->mBufferPos < SAMPLE_SIZE) {
+    // Step
+    // NR52 Bit 7: All sound on/off
+    if (this->mNr52 & 0x80) {
+      this->mPsg1.step(CLOCKS_PER_SAMPLE);
+      this->mPsg2.step(CLOCKS_PER_SAMPLE);
+      this->mPsg3.step(CLOCKS_PER_SAMPLE);
+      this->mPsg4.step(CLOCKS_PER_SAMPLE);
+    }
+    for (int channel = 0; channel < 2; channel += 1) {
+      this->mBuffer[this->mBufferPos * 2 + channel] =
+          this->get_output(channel) * 32768;
+    }
+    this->mBufferPos += 1;
+  }
   this->mBufferPos = 0;
   this->mClocks = 0;
   return this->mBuffer;
