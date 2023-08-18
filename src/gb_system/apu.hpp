@@ -148,7 +148,7 @@ class apu : public component,
             public memory::memory,
             public std::enable_shared_from_this<apu> {
 public:
-  static const int SAMPLE_SIZE = 32768;
+  static const int SAMPLE_SIZE = 32768 / 60 + 1;
   static const int CLOCKS_PER_SAMPLE = 4194304 / 32768;
   apu(system &pSystem);
   void reset();
@@ -156,10 +156,10 @@ public:
   void tick();
   uint8_t read(uint16_t pAddr);
   void write(uint16_t pAddr, uint8_t pValue);
-  std::array<uint16_t, SAMPLE_SIZE * 2> &finalize();
+  std::array<int16_t, SAMPLE_SIZE * 2> &finalize();
 
 private:
-  std::array<uint16_t, SAMPLE_SIZE * 2> mBuffer;
+  std::array<int16_t, SAMPLE_SIZE * 2> mBuffer;
   int mBufferPos;
   int mClocks;
   uint8_t mNr50;

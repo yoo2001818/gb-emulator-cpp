@@ -499,7 +499,7 @@ void gb_system::apu::apu::reset() {
   this->mNr51 = 0;
   this->mNr52 = 0;
 }
-const uint8_t IO_APU = 0x00;
+const uint8_t IO_APU = 0x10;
 void gb_system::apu::apu::register_system() {
   this->mSystem.mIoBus->register_entry(IO_APU, 0x30, this->shared_from_this());
 }
@@ -533,8 +533,8 @@ void gb_system::apu::apu::tick() {
   this->mClocks += 4;
   int futurePos = this->mClocks / CLOCKS_PER_SAMPLE;
   while (this->mBufferPos < futurePos) {
-    if (this->mBufferPos >= this->mBuffer.size())
-      break;
+    if (this->mBufferPos >= SAMPLE_SIZE)
+      return;
     // Step
     // NR52 Bit 7: All sound on/off
     if (this->mNr52 & 0x80) {
@@ -544,13 +544,13 @@ void gb_system::apu::apu::tick() {
       this->mPsg4.step(CLOCKS_PER_SAMPLE);
     }
     for (int channel = 0; channel < 2; channel += 1) {
-      int offset = SAMPLE_SIZE * channel;
-      this->mBuffer[offset + this->mBufferPos] = this->get_output(channel);
+      this->mBuffer[this->mBufferPos * 2 + channel] =
+          this->get_output(channel) * 32768;
     }
     this->mBufferPos += 1;
   }
 }
-std::array<uint16_t, gb_system::apu::apu::SAMPLE_SIZE * 2> &
+std::array<int16_t, gb_system::apu::apu::SAMPLE_SIZE * 2> &
 gb_system::apu::apu::finalize() {
   this->mBufferPos = 0;
   this->mClocks = 0;

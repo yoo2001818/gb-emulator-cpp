@@ -2,10 +2,13 @@
 #include "../cartridge/cartridge_raw.hpp"
 #include "../cpu/disasm.hpp"
 #include "../ui/node.hpp"
+#include "SDL_audio.h"
+#include "SDL_error.h"
 #include <SDL2/SDL_scancode.h>
 #include <format>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 // FIXME: Move it somewhere else
@@ -44,7 +47,8 @@ uint32_t convertColor(uint16_t value) {
 }
 
 app::application::application(const std::string &pRomPath) {
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER |
+               SDL_INIT_AUDIO) != 0) {
     throw std::runtime_error(SDL_GetError());
   }
 
@@ -60,6 +64,21 @@ app::application::application(const std::string &pRomPath) {
   if (this->mRenderer == nullptr) {
     throw std::runtime_error(SDL_GetError());
   }
+
+  SDL_AudioSpec audioSpec;
+  audioSpec.freq = 32768;
+  audioSpec.format = AUDIO_S16;
+  audioSpec.channels = 2;
+  audioSpec.samples = 1024;
+  audioSpec.callback = nullptr;
+  audioSpec.userdata = nullptr;
+
+  this->mAudioDeviceId =
+      SDL_OpenAudioDevice(nullptr, 0, &audioSpec, nullptr, 0);
+  if (this->mAudioDeviceId == 0) {
+    throw std::runtime_error(SDL_GetError());
+  }
+  SDL_PauseAudioDevice(this->mAudioDeviceId, 0);
 
   // Create frame buffer texture
   this->mPpuTexture = std::make_unique<ppu_texture>(*this);
@@ -205,6 +224,10 @@ void app::application::update() {
         std::format("TAC: {:02x}\n", system.mTimer->mTac));
   }
 
+  // Submit audio
+  auto &buf = this->mSystem->mApu->finalize();
+  SDL_QueueAudio(this->mAudioDeviceId, buf.data(), buf.size());
+
   /*
   // An attempt at rendering the node
   {
@@ -279,5 +302,9 @@ app::application::~application() {
   if (this->mWindow != nullptr) {
     SDL_DestroyWindow(this->mWindow);
     this->mWindow = nullptr;
+  }
+  if (this->mAudioDeviceId == 0) {
+    SDL_CloseAudioDevice(this->mAudioDeviceId);
+    this->mAudioDeviceId = 0;
   }
 }
