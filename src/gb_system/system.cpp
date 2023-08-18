@@ -1,4 +1,5 @@
 #include "system.hpp"
+#include <memory>
 
 gb_system::system::system(system_type pSystemType) : mSystemType(pSystemType) {
   this->mMemoryBus = make_shared<memory::memory_bus>();
@@ -12,6 +13,7 @@ gb_system::system::system(system_type pSystemType) : mSystemType(pSystemType) {
   this->mPpu = make_shared<ppu>(*this);
   this->mDma = make_shared<dma>(*this);
   this->mGamepad = make_shared<gamepad>(*this);
+  this->mApu = make_shared<apu::apu>(*this);
   this->reset();
 }
 
@@ -34,6 +36,7 @@ void gb_system::system::reset() {
   this->mPpu->reset();
   this->mDma->reset();
   this->mGamepad->reset();
+  this->mApu->reset();
 
   this->mCpu->set_on_tick([&](int pTicks) { this->tick(pTicks); });
   this->mMemoryBus->register_entry(0xff, 1, this->mIoBus);
@@ -46,6 +49,7 @@ void gb_system::system::reset() {
   this->mPpu->register_system();
   this->mDma->register_system();
   this->mGamepad->register_system();
+  this->mApu->register_system();
 }
 
 void gb_system::system::tick(int pTicks) {
@@ -54,6 +58,7 @@ void gb_system::system::tick(int pTicks) {
     this->mPpu->tick();
     this->mDma->tick();
     this->mGamepad->tick();
+    this->mApu->tick();
     if (this->mCartridge)
       this->mCartridge->tick();
   }
