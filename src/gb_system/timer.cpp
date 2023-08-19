@@ -68,7 +68,10 @@ void gb_system::timer::register_system() {
 void gb_system::timer::tick() {
   if (this->mTimaDelayed) {
     this->mTimaDelayed = false;
-    this->mSystem.mInterrupter->queue_interrupt(INT_TIMER_OVERFLOW);
+    if (this->mTima > 0xff) {
+      this->mTima = this->mTma;
+      this->mSystem.mInterrupter->queue_interrupt(INT_TIMER_OVERFLOW);
+    }
   }
   if (this->mTac & 0x4) {
     // Tick the clock according to the clock
@@ -90,6 +93,6 @@ void gb_system::timer::tick() {
 void gb_system::timer::post_update_tima() {
   if (this->mTima > 0xff) {
     this->mTimaDelayed = true;
-    this->mTima = this->mTma;
+    this->mTima = 0x100;
   }
 }
