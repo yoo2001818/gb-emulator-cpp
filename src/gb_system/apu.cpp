@@ -149,7 +149,7 @@ void gb_system::apu::sweep_psg_module::write(uint16_t pAddr, uint8_t pValue) {
   if (pAddr == 0) {
     // NR10 - Sweep
     this->mSlope = pValue & 0x7;
-    this->mIncreasing = (pValue & 0x8) > 0;
+    this->mIncreasing = (pValue & 0x8) == 0;
     this->mInitialPace = (pValue >> 4) & 0x7;
     if (this->mInitialPace == 0) {
       this->mPace = 0;
@@ -173,7 +173,8 @@ void gb_system::apu::square_psg::reset() {
   this->mPhaseClock = 0;
   this->mWavelength = 0;
   this->mDutyCycle = 0;
-  this->mSweep.reset();
+  if (this->mHasSweep)
+    this->mSweep.reset();
   this->mEnvelope.reset();
   this->mLength.reset();
 }
@@ -182,7 +183,8 @@ void gb_system::apu::square_psg::trigger() {
   this->mEnabled = true;
   this->mPhase = 0;
   this->mPhaseClock = 0;
-  this->mSweep.trigger();
+  if (this->mHasSweep)
+    this->mSweep.trigger();
   this->mEnvelope.trigger();
   this->mLength.trigger();
 }
@@ -233,11 +235,11 @@ uint8_t gb_system::apu::square_psg::read(uint16_t pAddr) {
     // NR11 - Length timer & duty cycle
     output = 0x100 | ((this->mDutyCycle & 0x3) << 6);
     break;
-  case 2:
+  case 3:
     // NR13 - Wavelength low
     output = 0x100 | (this->mWavelength & 0xff);
     break;
-  case 3:
+  case 4:
     // NR14 - Wavelength high & control
     output = 0x100 | ((this->mWavelength >> 8) & 0x7);
     break;
@@ -256,12 +258,12 @@ void gb_system::apu::square_psg::write(uint16_t pAddr, uint8_t pValue) {
     // NR11 - Length timer & duty cycle
     this->mDutyCycle = (pValue >> 6) & 0x3;
     break;
-  case 2:
-    // NR12 - Wavelength low
+  case 3:
+    // NR13 - Wavelength low
     this->mWavelength = (this->mWavelength & 0x700) | (pValue & 0xff);
     break;
-  case 3:
-    // NR13 - Wavelength high & control
+  case 4:
+    // NR14 - Wavelength high & control
     this->mWavelength = (this->mWavelength & 0xff) | ((pValue & 0x7) << 8);
     if (pValue & 0x80)
       this->trigger();
