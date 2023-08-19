@@ -10,7 +10,7 @@ std::array<uint8_t, 40> test_impl(std::array<uint8_t, 16> pInput) {
   std::array<uint8_t, 40> output;
   output.fill(0);
   int readPos = 12;
-  int writePos = 12;
+  int writePos = 16;
   cpu::cpu cpuSut(std::make_shared<memory::lambda_memory>(
       [&](uint16_t pAddr) {
         auto readValue = pInput[readPos];
@@ -39,6 +39,7 @@ std::array<uint8_t, 40> test_impl(std::array<uint8_t, 16> pInput) {
   cpuSut.mRegister.l = pInput[7];
   cpuSut.mRegister.pc = pInput[8] | (pInput[9] << 8);
   cpuSut.mRegister.sp = pInput[10] | (pInput[11] << 8);
+  cpuSut.mClocks = 0;
   cpuSut.step();
   output[0] = cpuSut.mRegister.a;
   output[1] = cpuSut.mRegister.b;
@@ -52,6 +53,7 @@ std::array<uint8_t, 40> test_impl(std::array<uint8_t, 16> pInput) {
   output[9] = (cpuSut.mRegister.pc >> 8) & 0xff;
   output[10] = cpuSut.mRegister.sp & 0xff;
   output[11] = (cpuSut.mRegister.sp >> 8) & 0xff;
+  output[12] = cpuSut.mClocks;
   return output;
 }
 

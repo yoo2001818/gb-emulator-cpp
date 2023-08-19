@@ -16,6 +16,9 @@ int main(int argc, char *argv[]) {
   {
     app::application app(argv[1]);
 
+    static const uint64_t US_PER_FRAME = 1000000 / 60;
+    uint64_t prevTime = SDL_GetTicks64() * 1000;
+
     while (true) {
       SDL_Event event;
       if (SDL_PollEvent(&event)) {
@@ -25,17 +28,13 @@ int main(int argc, char *argv[]) {
         app.handle_event(event);
       }
 
-      uint64_t beginTime = SDL_GetTicks64();
-
-      app.update();
-
-      uint64_t endTime = SDL_GetTicks64();
-      int32_t deltaTime = static_cast<int32_t>(endTime - beginTime);
-      int32_t sleepTime = 16 - deltaTime;
-
-      if (sleepTime > 0) {
-        SDL_Delay(sleepTime);
+      uint64_t beginTime = SDL_GetTicks64() * 1000;
+      while (beginTime > prevTime + US_PER_FRAME) {
+        app.update();
+        prevTime += US_PER_FRAME;
       }
+
+      SDL_Delay(US_PER_FRAME / 1000);
     }
   }
   SDL_Quit();

@@ -61,7 +61,7 @@ template <typename R>
 void ld16_r16_d16(cpu &pCpu) {
   uint16_t value = pCpu.read_next16();
   R::write(pCpu, value);
-  pCpu.tick(3);
+  pCpu.tick(2);
 }
 
 void ld16_a16_sp(cpu &pCpu);
